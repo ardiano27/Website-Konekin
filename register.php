@@ -10,7 +10,7 @@ if (!isset($_GET['type']) || !in_array($_GET['type'], ['umkm', 'creative'])) {
 
 $user_type = $_GET['type'];
 
-$database = new Database();
+$database = new DatabaseConnection();
 $conn = $database->getConnection();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {

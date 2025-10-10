@@ -5,9 +5,9 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit;
 }
-
-include "config/Database.php";
-$database = new Database();
+// Di check_login.php
+include_once "config/Database.php";
+$database = new DatabaseConnection();
 $conn = $database->getConnection();
 
 $sql = "SELECT * FROM users WHERE id = :user_id";

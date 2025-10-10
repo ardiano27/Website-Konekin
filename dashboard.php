@@ -70,75 +70,7 @@
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="p-4">
-            <h3 class="text-center mb-4">
-                <i></i>Konekin
-            </h3>
-            
-            <div class="text-center mb-4">
-   
-                <h6 class="mb-1"><?php echo $_SESSION['full_name']; ?></h6>
-                <small class="text-light">
-                    <?php 
-                    echo $_SESSION['user_type'] === 'umkm' ? 'UMKM/Bisnis' : 'Creative Worker';
-                    ?>
-                </small>
-            </div>
-            
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link active" href="dashboard.php">
-                        <i></i>Dashboard
-                    </a>
-                </li>
-                
-                <?php if ($_SESSION['user_type'] === 'umkm'): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="projects.php">
-                            <i></i>Proyek Saya
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="create-project.php">
-                            <i></i>Buat Proyek
-                        </a>
-                    </li>
-                <?php else: ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="find-projects.php">
-                            <i></i>Cari Proyek
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="my-proposals.php">
-                            <i></i>Proposal Saya
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="portfolio.php">
-                            <i></i>Portfolio
-                        </a>
-                    </li>
-                <?php endif; ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="messages.php">
-                        <i></i>Pesan
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="profile.php">
-                        <i></i>Edit Profil
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="logout.php">
-                        <i></i>Logout
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
+        <?php include "dashboard-sidebar.php"; ?>
 
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
