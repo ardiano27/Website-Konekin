@@ -5,81 +5,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        :root {
-            --primary-color: #2596be;
-            --primary-dark: #1e7a9c;
-        }
-        
-        .sidebar {
-            background-color: var(--primary-color);
-            color: white;
-            min-height: 100vh;
-            position: fixed;
-            width: 250px;
-        }
-        
-        .sidebar .nav-link {
-            color: white;
-            padding: 12px 20px;
-            margin: 5px 0;
-            border-radius: 5px;
-        }
-        
-        .sidebar .nav-link:hover {
-            background-color: var(--primary-dark);
-        }
-        
-        .sidebar .nav-link.active {
-            background-color: var(--primary-dark);
-        }
-        
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-        }
-        
-        .welcome-card {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            border: none;
-        }
-        
-        .stat-card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stat-card .card-body {
-            padding: 25px;
-        }
-        
-        .stat-icon {
-            font-size: 2.5rem;
-            opacity: 0.8;
-        }
-    </style>
+    <link rel="stylesheet" href="sidebar.css">
  </head>
  <body>
-    <div class="sidebar">
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
     <div class="p-4">
-        <h3 class="text-center mb-4">
-            <i class="fas fa-handshake me-2"></i>Konekin
-        </h3>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0 sidebar-logo">
+                <button class="sidebar-toggle btn btn-primary" id="sidebarToggle">
+                    <i class="fas fa-bars" id="toggleIcon"></i>
+                </button>
+                <i class="fas fa-handshake me-2"></i>
+                <span class="logo-text">Konekin</span>
+                
+            </h3>
+            
+            <button class="btn btn-close btn-close-white d-md-none" id="sidebarClose"></button>
+        </div>
         
-        <div class="text-center mb-4">
-            <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+        <div class="text-center mb-4 sidebar-user-info">
+            <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2 user-avatar" 
                  style="width: 60px; height: 60px;">
                 <i class="fas fa-user text-primary" style="font-size: 1.5rem;"></i>
             </div>
-            <h6 class="mb-1"><?php echo $_SESSION['full_name']; ?></h6>
-            <small class="text-light">
+            <h6 class="mb-1 user-name"><?php echo $_SESSION['full_name']; ?></h6>
+            <small class="text-light user-type">
                 <?php 
                 echo $_SESSION['user_type'] === 'umkm' ? 'UMKM/Bisnis' : 'Creative Worker';
                 ?>
@@ -89,56 +40,73 @@
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link" href="dashboard.php">
-                    <i class="fas fa-home me-2"></i>Dashboard
+                    <i class="fas fa-home me-2"></i>
+                    <span class="nav-text">Dashboard</span>
                 </a>
             </li>
             
             <?php if ($_SESSION['user_type'] === 'umkm'): ?>
                 <li class="nav-item">
                     <a class="nav-link" href="projects.php">
-                        <i class="fas fa-briefcase me-2"></i>Proyek Saya
+                        <i class="fas fa-briefcase me-2"></i>
+                        <span class="nav-text">Proyek Saya</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="create-project.php">
-                        <i class="fas fa-plus-circle me-2"></i>Buat Proyek
+                        <i class="fas fa-plus-circle me-2"></i>
+                        <span class="nav-text">Buat Proyek</span>
                     </a>
                 </li>
             <?php else: ?>
                 <li class="nav-item">
                     <a class="nav-link" href="find-projects.php">
-                        <i class="fas fa-search me-2"></i>Cari Proyek
+                        <i class="fas fa-search me-2"></i>
+                        <span class="nav-text">Cari Proyek</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="my-proposals.php">
-                        <i class="fas fa-file-alt me-2"></i>Proposal Saya
+                        <i class="fas fa-file-alt me-2"></i>
+                        <span class="nav-text">Proposal Saya</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="portfolio.php">
-                        <i class="fas fa-images me-2"></i>Portfolio
+                        <i class="fas fa-images me-2"></i>
+                        <span class="nav-text">Portfolio</span>
                     </a>
                 </li>
             <?php endif; ?>
             
             <li class="nav-item">
                 <a class="nav-link" href="messages.php">
-                    <i class="fas fa-envelope me-2"></i>Pesan
+                    <i class="fas fa-envelope me-2"></i>
+                    <span class="nav-text">Pesan</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="profile.php">
-                    <i class="fas fa-user-edit me-2"></i>Edit Profil
+                    <i class="fas fa-user-edit me-2"></i>
+                    <span class="nav-text">Edit Profil</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="logout.php">
-                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    <i class="fas fa-sign-out-alt me-2"></i>
+                    <span class="nav-text">Logout</span>
                 </a>
             </li>
+            
         </ul>
     </div>
 </div>
+
+<!-- Overlay untuk mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Toggle Button untuk Mobile & Desktop -->
+
+<script src="sidebar.js"></script>
 </body>
 </html>
