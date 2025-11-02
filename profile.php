@@ -6,92 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil - Konekin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .badge.rated_talent { background: #FFD700; color: #000; }
-        .badge.rising_talent { background: #4CAF50; color: white; }
-        
-        .success-score {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        .score-number {
-            font-size: 48px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .rating-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            margin-bottom: 8px;
-        }
-        .stars {
-            color: #FFD700;
-        }
-        .review-item {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            background: white;
-        }
-        .review-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .reviewer-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #007bff;
-            margin-right: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-        }
-        .private-feedback {
-            background: #e3f2fd;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            border-left: 4px solid #2196F3;
-        }
-    </style>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <?php 
-    require_once 'models/Review.php';
-    $reviewModel = new SimpleReview();
-    
-    $userId = $_SESSION['user_id'];
-    $userType = $_SESSION['user_type'];
-    
-    if ($userType === 'creative') {
-        $reviews = $reviewModel->getCreativeReviews($userId);
-        $stats = $reviewModel->getCreativeStats($userId);
-        $ratingAvg = $reviewModel->calculateRatingAverage($userId);
-    }
-    ?>
-    
-    <div class="container mt-5">
+     <?php include "dashboard-sidebar.php"; ?>
+    <div class="main-content">
         <div class="row justify-content-center">
             <div class="col-md-10">
                

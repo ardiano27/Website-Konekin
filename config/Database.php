@@ -1,4 +1,5 @@
 <?php
+
 if (!class_exists('DatabaseConnection')) {
     class DatabaseConnection {
         private $host = 'localhost';

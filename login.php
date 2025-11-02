@@ -59,12 +59,16 @@ if(isset($_GET['status']) && $_GET['status'] == 'registered'){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Konekin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2596be;
-            --primary-dark: #1e7a9c;
+        --primary-color: #3E7FD5;
+        --primary-dark: #2A5EA8;
         }
-        
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
@@ -88,9 +92,11 @@ if(isset($_GET['status']) && $_GET['status'] == 'registered'){
     </style>
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+   <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="index.php">Konekin</a>
+            <a class="navbar-brand" href="index.php">
+                <i class="fas fa-link me-2"></i>Konekin
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
