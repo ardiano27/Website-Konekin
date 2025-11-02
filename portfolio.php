@@ -29,7 +29,6 @@ $skills_stmt->bindParam(':user_id', $_SESSION['user_id']);
 $skills_stmt->execute();
 $skills = $skills_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Ambil profile creative worker
 $profile_sql = "SELECT * FROM creative_profiles WHERE user_id = :user_id";
 $profile_stmt = $conn->prepare($profile_sql);
 $profile_stmt->bindParam(':user_id', $_SESSION['user_id']);
@@ -44,12 +43,15 @@ $profile = $profile_stmt->fetch(PDO::FETCH_ASSOC);
     <title>Portfolio - Konekin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #2596be;
             --primary-dark: #1e7a9c;
         }
-        
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
         .portfolio-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border: none;
@@ -151,7 +153,6 @@ $profile = $profile_stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </div>
 
-        <!-- Skills Section -->
         <div class="card mb-4">
             <div class="card-header">
                 <h5 class="card-title mb-0">Keahlian</h5>
@@ -174,9 +175,7 @@ $profile = $profile_stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </div>
 
-        <!-- Portfolio Grid -->
         <div class="row">
-            <!-- Add New Portfolio Card -->
             <div class="col-md-4 mb-4">
                 <div class="card portfolio-card add-portfolio-btn" data-bs-toggle="modal" data-bs-target="#addPortfolioModal">
                     <div class="card-body text-center text-muted">
