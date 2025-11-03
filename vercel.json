@@ -1,13 +1,18 @@
 {
   "version": 2,
-  "functions": {
-    "api/users/index.php": {
-      "runtime": "vercel-php@0.6.0"
+  "builds": [
+    {
+      "src": "api/users/index.php",
+      "use": "@vercel/php"
     }
-  },
+  ],
   "routes": [
     {
-      "src": "/api/users(.*)",
+      "src": "/api/users/?.*",
+      "dest": "/api/users/index.php"
+    },
+    {
+      "src": "/users/?.*",
       "dest": "/api/users/index.php"
     },
     {
