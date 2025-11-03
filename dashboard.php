@@ -7,16 +7,10 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+// Pastikan user_role ada di session
 if (!isset($_SESSION['user_role'])) {
-    if (strpos($_SERVER['PHP_SELF'], 'dashboard-cw.php') !== false) {
-        $_SESSION['user_role'] = 'creative_worker';
-    } elseif (strpos($_SERVER['PHP_SELF'], 'dashboard-umkm.php') !== false) {
-        $_SESSION['user_role'] = 'umkm';
-    } elseif (strpos($_SERVER['PHP_SELF'], 'dashboard-admin.php') !== false) {
-        $_SESSION['user_role'] = 'admin';
-    } else {
-        $_SESSION['user_role'] = 'creative_worker';
-    }
+    // Default ke creative_worker jika tidak ada role
+    $_SESSION['user_role'] = 'creative_worker';
 }
 
 require_once 'config/Database.php';
@@ -28,6 +22,7 @@ if (file_exists('includes/config/database-charts.php')) {
     $db = $database->getConnection();
     $chartModel = new DashboardCharts($db);
 } else {
+    // Fallback class jika file tidak ada
     class SimpleDashboardCharts {
         public function getAdminStats() {
             return [
@@ -87,6 +82,7 @@ if (file_exists('includes/config/database-charts.php')) {
 $user_id = $_SESSION['user_id'];
 $user_role = $_SESSION['user_role']; 
 
+// Load data berdasarkan role
 if ($user_role === 'admin') {
     $stats = $chartModel->getAdminStats();
     $projectStatus = $chartModel->getProjectStatusStats();
@@ -95,6 +91,7 @@ if ($user_role === 'admin') {
     $stats = $chartModel->getUMKMStats($user_id);
     $projectStatus = $chartModel->getUMKMProjectStatus($user_id);
 } else {
+    // Default ke creative worker
     $stats = $chartModel->getCWStats($user_id);
     $projectCategories = $chartModel->getCWProjectCategories();
 }
@@ -109,19 +106,18 @@ if ($user_role === 'admin') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <?php include "dashboard-sidebar.php"; ?>
-
-    <div class="main-content">
-     
-    </div>
-=======
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #2596be;
             --primary-dark: #1e7a9c;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
         }
         
         .sidebar {
@@ -130,6 +126,7 @@ if ($user_role === 'admin') {
             min-height: 100vh;
             position: fixed;
             width: 250px;
+            z-index: 1000;
         }
         
         .sidebar .nav-link {
@@ -150,6 +147,7 @@ if ($user_role === 'admin') {
         .main-content {
             margin-left: 250px;
             padding: 20px;
+            min-height: 100vh;
         }
         
         .welcome-card {
@@ -190,23 +188,51 @@ if ($user_role === 'admin') {
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                min-height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <?php include "dashboard-sidebar.php"; ?>
+    <?php 
+    // Include sidebar
+    if (file_exists('dashboard-sidebar.php')) {
+        include 'dashboard-sidebar.php';
+    } else {
+        echo "<!-- Sidebar not found -->";
+    }
+    ?>
 
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Dashboard <?php echo ucfirst(str_replace('_', ' ', $user_role)); ?></h2>
             <div class="d-flex align-items-center">
                 <span class="me-3">Halo, <?php echo $_SESSION['full_name'] ?? 'User'; ?>!</span>
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-1"></i> Profile
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user-edit me-2"></i>Edit Profile</a></li>
+                        <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
+        <!-- Stats Cards -->
         <div class="row mb-4">
             <?php if ($user_role === 'admin'): ?>
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <div class="card stat-card text-center">
                         <div class="card-body">
                             <i class="fas fa-project-diagram stat-icon text-primary mb-2"></i>
@@ -215,7 +241,7 @@ if ($user_role === 'admin') {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <div class="card stat-card text-center">
                         <div class="card-body">
                             <i class="fas fa-users stat-icon text-info mb-2"></i>
@@ -224,7 +250,7 @@ if ($user_role === 'admin') {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <div class="card stat-card text-center">
                         <div class="card-body">
                             <i class="fas fa-money-bill-wave stat-icon text-success mb-2"></i>
@@ -233,7 +259,7 @@ if ($user_role === 'admin') {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <div class="card stat-card text-center">
                         <div class="card-body">
                             <i class="fas fa-star stat-icon text-warning mb-2"></i>
@@ -244,7 +270,7 @@ if ($user_role === 'admin') {
                 </div>
 
             <?php elseif ($user_role === 'umkm'): ?>
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <div class="card glass-card stats-card text-center">
                         <div class="card-body">
                             <i class="fas fa-project-diagram fa-2x text-primary mb-2"></i>
@@ -253,7 +279,7 @@ if ($user_role === 'admin') {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <div class="card glass-card stats-card text-center">
                         <div class="card-body">
                             <i class="fas fa-users fa-2x text-info mb-2"></i>
@@ -262,7 +288,7 @@ if ($user_role === 'admin') {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <div class="card glass-card stats-card text-center">
                         <div class="card-body">
                             <i class="fas fa-file-contract fa-2x text-success mb-2"></i>
@@ -271,7 +297,7 @@ if ($user_role === 'admin') {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <div class="card glass-card stats-card text-center">
                         <div class="card-body">
                             <i class="fas fa-money-bill-wave fa-2x text-warning mb-2"></i>
@@ -282,7 +308,7 @@ if ($user_role === 'admin') {
                 </div>
 
             <?php else: ?>
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <div class="card glass-card stats-card text-center">
                         <div class="card-body">
                             <i class="fas fa-briefcase fa-2x text-primary mb-2"></i>
@@ -291,7 +317,7 @@ if ($user_role === 'admin') {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <div class="card glass-card stats-card text-center">
                         <div class="card-body">
                             <i class="fas fa-images fa-2x text-info mb-2"></i>
@@ -300,7 +326,7 @@ if ($user_role === 'admin') {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <div class="card glass-card stats-card text-center">
                         <div class="card-body">
                             <i class="fas fa-file-contract fa-2x text-success mb-2"></i>
@@ -309,7 +335,7 @@ if ($user_role === 'admin') {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 mb-3">
                     <div class="card glass-card stats-card text-center">
                         <div class="card-body">
                             <i class="fas fa-star fa-2x text-warning mb-2"></i>
@@ -321,9 +347,10 @@ if ($user_role === 'admin') {
             <?php endif; ?>
         </div>
 
+        <!-- Charts Section -->
         <div class="row mb-4">
             <?php if ($user_role === 'admin'): ?>
-                <div class="col-md-6">
+                <div class="col-md-6 mb-3">
                     <div class="card stat-card">
                         <div class="card-header">
                             <h5><i class="fas fa-chart-bar me-2"></i>Status Proyek</h5>
@@ -335,7 +362,7 @@ if ($user_role === 'admin') {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6 mb-3">
                     <div class="card stat-card">
                         <div class="card-header">
                             <h5><i class="fas fa-chart-pie me-2"></i>Distribusi Pengguna</h5>
@@ -349,7 +376,7 @@ if ($user_role === 'admin') {
                 </div>
 
             <?php elseif ($user_role === 'umkm'): ?>
-                <div class="col-md-6">
+                <div class="col-md-6 mb-3">
                     <div class="card glass-card">
                         <div class="card-header">
                             <h5><i class="fas fa-chart-pie me-2"></i>Status Proyek Saya</h5>
@@ -361,7 +388,7 @@ if ($user_role === 'admin') {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6 mb-3">
                     <div class="card glass-card">
                         <div class="card-header">
                             <h5><i class="fas fa-chart-line me-2"></i>Budget Proyek</h5>
@@ -375,7 +402,7 @@ if ($user_role === 'admin') {
                 </div>
 
             <?php else: ?>
-                <div class="col-md-6">
+                <div class="col-md-6 mb-3">
                     <div class="card glass-card">
                         <div class="card-header">
                             <h5><i class="fas fa-chart-bar me-2"></i>Kategori Proyek Tersedia</h5>
@@ -387,7 +414,7 @@ if ($user_role === 'admin') {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6 mb-3">
                     <div class="card glass-card">
                         <div class="card-header">
                             <h5><i class="fas fa-chart-line me-2"></i>Perkembangan Portfolio</h5>
@@ -402,6 +429,7 @@ if ($user_role === 'admin') {
             <?php endif; ?>
         </div>
 
+        <!-- Welcome Card -->
         <div class="row">
             <div class="col-12">
                 <div class="card welcome-card">
@@ -428,6 +456,7 @@ if ($user_role === 'admin') {
 
         document.addEventListener('DOMContentLoaded', function() {
             <?php if ($user_role === 'admin'): ?>
+                // Admin Charts
                 if (document.getElementById('projectStatusChart') && chartData.projectStatus.length > 0) {
                     new Chart(document.getElementById('projectStatusChart'), {
                         type: 'bar',
@@ -474,6 +503,7 @@ if ($user_role === 'admin') {
                 }
 
             <?php elseif ($user_role === 'umkm'): ?>
+                // UMKM Charts
                 if (document.getElementById('myProjectsChart') && chartData.projectStatus && chartData.projectStatus.length > 0) {
                     new Chart(document.getElementById('myProjectsChart'), {
                         type: 'pie',
@@ -528,6 +558,7 @@ if ($user_role === 'admin') {
                 }
 
             <?php else: ?>
+                // Creative Worker Charts
                 if (document.getElementById('projectCategoriesChart') && chartData.projectCategories && chartData.projectCategories.length > 0) {
                     new Chart(document.getElementById('projectCategoriesChart'), {
                         type: 'bar',
@@ -580,7 +611,6 @@ if ($user_role === 'admin') {
             <?php endif; ?>
         });
     </script>
->>>>>>> dashboard
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
