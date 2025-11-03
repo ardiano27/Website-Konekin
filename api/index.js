@@ -59,12 +59,19 @@ app.get('/api/users/:id', async (req, res) => {
     await connection.end();
     
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ 
+        status: 'error',
+        message: 'User not found' 
+      });
     }
     
     res.json({ status: 'success', data: rows[0] });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ 
+      status: 'error',
+      message: 'Database operation failed',
+      error: error.message 
+    });
   }
 });
 
@@ -74,7 +81,10 @@ app.post('/api/users', async (req, res) => {
     const { email, password, user_type, full_name, phone, avatar_url } = req.body;
     
     if (!email || !password || !user_type || !full_name) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ 
+        status: 'error',
+        message: 'Missing required fields' 
+      });
     }
     
     const connection = await getConnection();
@@ -87,7 +97,10 @@ app.post('/api/users', async (req, res) => {
     
     if (existing.length > 0) {
       await connection.end();
-      return res.status(409).json({ error: 'Email already exists' });
+      return res.status(409).json({ 
+        status: 'error',
+        message: 'Email already exists' 
+      });
     }
     
     // Create user
@@ -110,7 +123,93 @@ app.post('/api/users', async (req, res) => {
       data: rows[0]
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ 
+      status: 'error',
+      message: 'Database operation failed',
+      error: error.message 
+    });
+  }
+});
+
+// DELETE user (soft delete)
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    const connection = await getConnection();
+    
+    // Check if user exists and is active
+    const [existing] = await connection.execute(
+      'SELECT id FROM users WHERE id = ? AND is_active = 1',
+      [req.params.id]
+    );
+    
+    if (existing.length === 0) {
+      await connection.end();
+      return res.status(404).json({ 
+        status: 'error',
+        message: 'User not found or already deleted' 
+      });
+    }
+    
+    // Soft delete - set is_active to 0
+    await connection.execute(
+      'UPDATE users SET is_active = 0 WHERE id = ?',
+      [req.params.id]
+    );
+    
+    await connection.end();
+    
+    res.json({
+      status: 'success',
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ 
+      status: 'error',
+      message: 'Failed to delete user',
+      error: error.message 
+    });
+  }
+});
+
+// DELETE user (permanent delete - optional)
+app.delete('/api/users/:id/permanent', async (req, res) => {
+  try {
+    const connection = await getConnection();
+    
+    // Check if user exists
+    const [existing] = await connection.execute(
+      'SELECT id FROM users WHERE id = ?',
+      [req.params.id]
+    );
+    
+    if (existing.length === 0) {
+      await connection.end();
+      return res.status(404).json({ 
+        status: 'error',
+        message: 'User not found' 
+      });
+    }
+    
+    // Permanent delete
+    await connection.execute(
+      'DELETE FROM users WHERE id = ?',
+      [req.params.id]
+    );
+    
+    await connection.end();
+    
+    res.json({
+      status: 'success',
+      message: 'User permanently deleted successfully'
+    });
+  } catch (error) {
+    console.error('Permanent delete user error:', error);
+    res.status(500).json({ 
+      status: 'error',
+      message: 'Failed to permanently delete user',
+      error: error.message 
+    });
   }
 });
 
@@ -121,7 +220,9 @@ app.get('/', (req, res) => {
     endpoints: {
       'GET /api/users': 'Get all users',
       'GET /api/users/:id': 'Get user by ID',
-      'POST /api/users': 'Create new user'
+      'POST /api/users': 'Create new user',
+      'DELETE /api/users/:id': 'Soft delete user',
+      'DELETE /api/users/:id/permanent': 'Permanent delete user (use with caution)'
     }
   });
 });
