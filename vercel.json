@@ -1,26 +1,18 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/users/index.php",
-      "use": "@vercel/php"
+  "functions": {
+    "api/users/index.php": {
+      "runtime": "vercel-php@0.6.0"
     }
-  ],
+  },
   "routes": [
     {
-      "src": "/api/users/?.*",
-      "dest": "/api/users/index.php"
-    },
-    {
-      "src": "/users/?.*",
+      "src": "/api/(.*)",
       "dest": "/api/users/index.php"
     },
     {
       "src": "/(.*)",
       "dest": "/api/users/index.php"
     }
-  ],
-  "env": {
-    "APP_ENV": "production"
-  }
+  ]
 }

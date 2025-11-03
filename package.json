@@ -4,10 +4,8 @@
   "scripts": {
     "dev": "vercel dev"
   },
-  "dependencies": {
-    "@vercel/php": "latest"
-  },
+  "dependencies": {},
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   }
 }
