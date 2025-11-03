@@ -23,9 +23,9 @@ if ($_POST) {
         $_SESSION['user_email'] = $user['email'];
         
         if ($user['role'] === 'umkm') {
-            header("Location: dashboard/dashboardumkm.php");
+            header("Location: dashboard/dashboard.php");
         } else {
-            header("Location: dashboard/dashboardcw.php");
+            header("Location: dashboard/dashboard.php");
         }
         exit();
     } else {
