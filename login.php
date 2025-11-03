@@ -28,9 +28,9 @@ if(isset($_POST["login"])){
                 $_SESSION['email'] = $user['email'];
                 
                 if($user['user_type'] === 'umkm'){
-                    header("Location: dashboard-umkm.php");
+                    header("Location: dashboard.php");
                 } else {
-                    header("Location: dashboard-creative.php");
+                    header("Location: dashboard.php");
                 }
                 exit;
             } else {
