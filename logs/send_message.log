@@ -1,0 +1,240 @@
+[2025-10-28 08:31:46] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"3","message_text":"gy"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-28 08:31:46] INPUT: sender_id=2 receiver_id=3 text_len=2
+[2025-10-28 08:31:46] INSERT OK id=34 uuid=180f9d61-2383-403c-899c-041798766860
+[2025-10-28 08:31:55] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"4","message_text":"gy"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-28 08:31:55] INPUT: sender_id=2 receiver_id=4 text_len=2
+[2025-10-28 08:31:55] INSERT OK id=35 uuid=5434d0f3-8ecd-4429-bdb8-9345c668de4f
+[2025-10-28 08:41:10] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"4","message_text":"hai"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-28 08:41:10] INPUT: sender_id=2 receiver_id=4 text_len=3
+[2025-10-28 08:41:10] INSERT OK id=36 uuid=7c6315d8-1e00-49f4-9cc9-7c72b14359c0
+[2025-10-28 08:43:49] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"hai"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-28 08:43:49] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-10-28 08:43:49] INSERT OK id=37 uuid=5b2c7bf2-1223-4e5b-973c-35990e596a9f
+[2025-10-28 08:44:08] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hi"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-28 08:44:08] INPUT: sender_id=2 receiver_id=6 text_len=2
+[2025-10-28 08:44:08] INSERT OK id=38 uuid=096a2c64-eedd-481c-afb9-d32871e3cac5
+[2025-10-28 08:44:22] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hhai"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-28 08:44:22] INPUT: sender_id=2 receiver_id=6 text_len=4
+[2025-10-28 08:44:22] INSERT OK id=39 uuid=77fa9eb4-8dff-49e6-9dbd-ec3a1efc6c00
+[2025-10-28 08:46:10] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"falling"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-28 08:46:10] INPUT: sender_id=6 receiver_id=2 text_len=7
+[2025-10-28 08:46:10] INSERT OK id=40 uuid=314a717e-3ef0-44ec-b0c1-3dc859e6271a
+[2025-10-28 08:49:44] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"woy"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-28 08:49:44] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-10-28 08:49:44] INSERT OK id=41 uuid=015a911f-202f-418b-b82f-62787a2939b2
+[2025-10-28 08:50:05] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"jir ko gamasuk y"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-28 08:50:05] INPUT: sender_id=6 receiver_id=2 text_len=16
+[2025-10-28 08:50:05] INSERT OK id=42 uuid=68f31bba-b87d-41f4-9e71-9a18c55eb4c1
+[2025-10-28 08:50:20] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"why"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-28 08:50:20] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-10-28 08:50:20] INSERT OK id=43 uuid=f9c54f41-9190-46a1-bc3c-f265d0f860c6
+[2025-10-28 08:51:43] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"lol"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-28 08:51:43] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-10-28 08:51:43] INSERT OK id=44 uuid=c219020f-54b1-490b-8b4e-6afbd4a7f82f
+[2025-10-28 13:51:11] REQUEST START: {"URI":"\/konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"gimana ya"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-28 13:51:11] INPUT: sender_id=6 receiver_id=2 text_len=9
+[2025-10-28 13:51:11] INSERT OK id=45 uuid=66fdbefb-8da0-48ed-b57b-e3a3cd37444e
+[2025-10-28 14:09:37] REQUEST START: {"URI":"\/konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hy"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-28 14:09:37] INPUT: sender_id=2 receiver_id=6 text_len=2
+[2025-10-28 14:09:37] INSERT OK id=46 uuid=c81e4563-bc00-40ed-b27d-3e592e40afc7
+[2025-10-28 17:16:37] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"ya allah"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-28 17:16:37] INPUT: sender_id=2 receiver_id=6 text_len=8
+[2025-10-28 17:16:37] INSERT OK id=47 uuid=e75e8711-bd2a-458c-b049-5e5d51eae0e1
+[2025-10-28 17:22:46] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"test"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-28 17:22:46] INPUT: sender_id=2 receiver_id=6 text_len=4
+[2025-10-28 17:22:47] INSERT OK id=48 uuid=40ef8f4e-7f25-4f6b-977d-71fc63a7d6d0
+[2025-10-29 01:57:27] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hadah"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 01:57:27] INPUT: sender_id=2 receiver_id=6 text_len=5
+[2025-10-29 01:57:27] INSERT OK id=49 uuid=bb44ea34-9418-4a37-8228-258d7eddba1c
+[2025-10-29 06:21:26] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"lol"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 06:21:26] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-10-29 06:21:26] INSERT OK id=50 uuid=335bc618-5efd-4ce6-ab44-92bf37ec7b45
+[2025-10-29 13:11:34] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"lol"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 13:11:34] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-10-29 13:11:34] INSERT OK id=59 uuid=cab4b604-24a3-4cb7-adcc-353bc6a19b08
+[2025-10-29 13:11:45] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"yg atas ga muncul"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 13:11:45] INPUT: sender_id=2 receiver_id=6 text_len=17
+[2025-10-29 13:11:45] INSERT OK id=60 uuid=4e2a9c3a-36e7-4cc5-b02f-d2cbd20f2d42
+[2025-10-29 13:13:42] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"test"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-29 13:13:42] INPUT: sender_id=6 receiver_id=2 text_len=4
+[2025-10-29 13:13:42] INSERT OK id=61 uuid=604668bc-0ec4-4b71-82a0-f02408ddf453
+[2025-10-29 13:13:54] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hey"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 13:13:54] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-10-29 13:13:54] INSERT OK id=62 uuid=4fe2d9cb-a7a0-4fd5-bc47-6f60a1a1a7b5
+[2025-10-29 13:13:56] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hey"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 13:13:56] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-10-29 13:13:56] INSERT OK id=63 uuid=76f85549-7c21-4575-82b6-0ab44234fb8e
+[2025-10-29 13:19:19] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"test"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 13:19:19] INPUT: sender_id=2 receiver_id=6 text_len=4
+[2025-10-29 13:19:19] INSERT OK id=64 uuid=cc3a6c89-4b54-4eb3-a39a-a129f911a710
+[2025-10-29 13:20:11] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"tst"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 13:20:11] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-10-29 13:20:11] INSERT OK id=65 uuid=7612ead3-94c6-4e86-8f5e-f0e0fc793f7f
+[2025-10-29 13:20:21] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"5","message_text":"hy"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-29 13:20:21] INPUT: sender_id=6 receiver_id=5 text_len=2
+[2025-10-29 13:20:21] INSERT OK id=66 uuid=09678dea-aa73-4fbb-9b44-a88ac9c0286a
+[2025-10-29 13:34:02] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"tst"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 13:34:02] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-10-29 13:34:02] INSERT OK id=67 uuid=dab71992-7c18-4989-b7fe-eaf0cd315038
+[2025-10-29 13:34:13] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"tst"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-29 13:34:13] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-10-29 13:34:13] INSERT OK id=68 uuid=d8fdfbe0-5b6b-46e3-94d4-7939c16d135d
+[2025-10-29 13:35:25] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"tst"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 13:35:25] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-10-29 13:35:25] INSERT OK id=69 uuid=5ccde145-ae44-4cdd-86b9-a6e6a4d4a685
+[2025-10-29 13:35:29] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"tst"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-29 13:35:29] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-10-29 13:35:29] INSERT OK id=70 uuid=da2502f1-92ed-49f0-848d-80c7fbfcaaab
+[2025-10-29 13:35:56] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"tst"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 13:35:56] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-10-29 13:35:56] INSERT OK id=71 uuid=6dede658-9445-4d30-97f4-28d0f162ba9c
+[2025-10-29 13:36:19] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hai"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 13:36:19] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-10-29 13:36:19] INSERT OK id=72 uuid=51fd9e75-4dc4-4ec7-bbd0-6f5cdde408b3
+[2025-10-29 13:36:21] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hai"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-29 13:36:21] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-10-29 13:36:21] INSERT OK id=73 uuid=c68e12ea-5eab-443a-8fca-78ae1f6850c3
+[2025-10-30 08:30:11] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"tst"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-30 08:30:11] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-10-30 08:30:11] INSERT OK id=74 uuid=d8945ccb-c5e4-449a-85aa-252b2c5a7709
+[2025-10-30 09:35:11] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"test"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-30 09:35:11] INPUT: sender_id=2 receiver_id=6 text_len=4
+[2025-10-30 09:35:11] INSERT OK id=75 uuid=6511e14a-2e5c-4042-aa82-606f0ef7f7dd
+[2025-10-30 09:35:25] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"test"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-30 09:35:25] INPUT: sender_id=6 receiver_id=2 text_len=4
+[2025-10-30 09:35:25] INSERT OK id=76 uuid=d64a2946-7fcc-4695-a1df-bb42bc4e762f
+[2025-10-30 09:43:34] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"ppp"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-30 09:43:34] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-10-30 09:43:34] INSERT OK id=77 uuid=b201f967-f444-45d0-bbdf-da7a67971fa5
+[2025-10-30 09:43:43] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"4","message_text":"kkk"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-30 09:43:43] INPUT: sender_id=6 receiver_id=4 text_len=3
+[2025-10-30 09:43:43] INSERT OK id=78 uuid=a36dada0-55d8-4919-be92-abc75d834844
+[2025-10-30 09:43:46] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"4","message_text":"kkk"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-30 09:43:46] INPUT: sender_id=6 receiver_id=4 text_len=3
+[2025-10-30 09:43:46] INSERT OK id=79 uuid=f97840c0-0513-40a0-84bb-4edc3207ad80
+[2025-10-30 09:43:57] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"aaaaaa"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-30 09:43:57] INPUT: sender_id=6 receiver_id=2 text_len=6
+[2025-10-30 09:43:57] INSERT OK id=80 uuid=b4c58800-981e-4baa-b033-6926d21f312b
+[2025-10-30 09:50:05] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"test"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-10-30 09:50:05] INPUT: sender_id=2 receiver_id=6 text_len=4
+[2025-10-30 09:50:05] INSERT OK id=81 uuid=4c7b0a46-f870-4e9b-b61d-dc02f9c8708e
+[2025-10-30 10:09:39] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"pe"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-10-30 10:09:39] INPUT: sender_id=6 receiver_id=2 text_len=2
+[2025-10-30 10:09:39] INSERT OK id=82 uuid=4d128d84-df89-4832-b277-27aa2260a7c4
+[2025-11-03 17:58:49] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hai"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-11-03 17:58:49] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-11-03 17:58:49] INSERT OK id=83 uuid=8b13ee02-7b5a-4f1e-9f9d-fc0daeff3d9d
+[2025-11-03 18:22:24] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hai"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-11-03 18:22:24] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-11-03 18:22:25] INSERT OK id=84 uuid=98a613b4-3c4a-4e5e-9cf0-1c9e2a051728
+[2025-11-03 18:22:31] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"hai"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-11-03 18:22:31] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-11-03 18:22:31] INSERT OK id=85 uuid=f50562e6-96c6-4e00-9f61-0f9073116ae5
+[2025-11-03 18:22:36] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"lol"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-11-03 18:22:36] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-11-03 18:22:36] INSERT OK id=86 uuid=650408c4-bf35-4c10-ac0f-241d22a4d2ae
+[2025-11-03 18:34:30] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"hai"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-11-03 18:34:30] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-11-03 18:34:30] INSERT OK id=87 uuid=cb863acd-53b0-4bb9-8248-d11cee95e158
+[2025-11-03 18:34:46] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hai"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-11-03 18:34:46] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-11-03 18:34:46] INSERT OK id=88 uuid=ac1d0938-31b0-430c-80fb-d2b2cc09fe45
+[2025-11-03 18:44:42] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"tst"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-11-03 18:44:42] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-11-03 18:44:42] INSERT OK id=89 uuid=e8d09b7e-9b94-47ad-be02-87d847914acb
+[2025-11-03 18:48:12] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hy"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-11-03 18:48:12] INPUT: sender_id=2 receiver_id=6 text_len=2
+[2025-11-03 18:48:12] INSERT OK id=90 uuid=0c566322-d050-4664-ad05-de010dbb15d8
+[2025-11-03 18:48:15] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"lol"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-11-03 18:48:15] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-11-03 18:48:15] INSERT OK id=91 uuid=21000644-1cb5-4c11-8f3a-7fb4eec42116
+[2025-11-03 18:48:29] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"gmn sik"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-11-03 18:48:29] INPUT: sender_id=6 receiver_id=2 text_len=7
+[2025-11-03 18:48:29] INSERT OK id=92 uuid=261e0851-f761-4b80-926f-6918a7c3b5c5
+[2025-11-03 19:07:47] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"woy"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-11-03 19:07:47] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-11-03 19:07:48] INSERT OK id=93 uuid=c33add7d-080f-4205-ae38-7c4efbf69e99
+[2025-11-03 19:09:09] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"kenapa seh"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-11-03 19:09:09] INPUT: sender_id=2 receiver_id=6 text_len=10
+[2025-11-03 19:09:09] INSERT OK id=94 uuid=c89f5ac3-fa05-4214-9951-9bc706c34418
+[2025-11-04 06:46:59] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"lol"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 06:46:59] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-11-04 06:46:59] INSERT OK id=95 uuid=a2790209-d2b7-4bc9-9427-781c8783af90
+[2025-11-04 06:47:24] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"ol"},"FILES_keys":[],"COOKIE":["PHPSESSID","Hm_lvt_7b1919221e89d2aa5711e4deb935debd","HMACCOUNT","Hm_lpvt_7b1919221e89d2aa5711e4deb935debd"],"SESSION_user_id":6}
+[2025-11-04 06:47:24] INPUT: sender_id=6 receiver_id=2 text_len=2
+[2025-11-04 06:47:24] INSERT OK id=96 uuid=d35ea067-e6ca-4c4e-9893-30b6cd7edbfe
+[2025-11-04 07:27:32] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"llo"},"FILES_keys":[],"COOKIE":["PHPSESSID","Hm_lvt_7b1919221e89d2aa5711e4deb935debd","HMACCOUNT","Hm_lpvt_7b1919221e89d2aa5711e4deb935debd"],"SESSION_user_id":6}
+[2025-11-04 07:27:32] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-11-04 07:27:32] INSERT OK id=97 uuid=7b2f2a7a-f5f9-494b-aae7-1d8f59f533d8
+[2025-11-04 16:54:03] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hy"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 16:54:03] INPUT: sender_id=2 receiver_id=6 text_len=2
+[2025-11-04 16:54:03] INSERT OK id=98 uuid=94daba8a-75d1-423c-915a-192f9ef2c2d2
+[2025-11-04 16:54:28] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"ui"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-11-04 16:54:28] INPUT: sender_id=6 receiver_id=2 text_len=2
+[2025-11-04 16:54:28] INSERT OK id=99 uuid=4c11f673-64b5-4054-8f60-dd8a997f21da
+[2025-11-04 16:59:16] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"lool"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 16:59:16] INPUT: sender_id=2 receiver_id=6 text_len=4
+[2025-11-04 16:59:16] INSERT OK id=100 uuid=59a5d46e-7267-4233-beda-30190de2434e
+[2025-11-04 17:15:11] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"ya allah"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 17:15:11] INPUT: sender_id=2 receiver_id=6 text_len=8
+[2025-11-04 17:15:11] INSERT OK id=101 uuid=c0eb99db-e15e-407c-a3ec-8efdb60dc08a
+[2025-11-04 17:15:31] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"hai"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 17:15:31] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-11-04 17:15:31] INSERT OK id=102 uuid=569b6285-7d23-4913-afb6-a871340ca6b9
+[2025-11-04 17:15:39] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"halo"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-11-04 17:15:39] INPUT: sender_id=6 receiver_id=2 text_len=4
+[2025-11-04 17:15:39] INSERT OK id=103 uuid=3e869f5c-ba49-4b39-8aa8-4b85d87a3bb2
+[2025-11-04 17:16:40] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"jikaaa ini sepiii tinggikan hatimuu sekali kubilanggg, sembunyikaan bencii"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 17:16:40] INPUT: sender_id=2 receiver_id=6 text_len=74
+[2025-11-04 17:16:40] INSERT OK id=104 uuid=98c833ee-ecf8-44b1-8703-106d3e89d403
+[2025-11-04 17:18:07] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"5","message_text":"nau"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 17:18:07] INPUT: sender_id=2 receiver_id=5 text_len=3
+[2025-11-04 17:18:07] INSERT OK id=105 uuid=f631b4f3-aa65-4951-b439-4a7a053a66e2
+[2025-11-04 17:18:56] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"opo ol"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":5}
+[2025-11-04 17:18:56] INPUT: sender_id=5 receiver_id=2 text_len=6
+[2025-11-04 17:18:56] INSERT OK id=106 uuid=7a609d15-82c4-48fd-b791-5c99a26ebbc2
+[2025-11-04 17:21:59] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"5","message_text":"test"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 17:21:59] INPUT: sender_id=2 receiver_id=5 text_len=4
+[2025-11-04 17:21:59] INSERT OK id=107 uuid=eeb39593-940e-46c2-808c-6f220a0842f4
+[2025-11-04 17:36:26] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"5","message_text":"TST"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 17:36:26] INPUT: sender_id=2 receiver_id=5 text_len=3
+[2025-11-04 17:36:26] INSERT OK id=108 uuid=b10fd188-acbb-4bc8-a3d7-f09959f513a6
+[2025-11-04 18:13:33] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"lol"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 18:13:33] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-11-04 18:13:33] INSERT OK id=109 uuid=19d46460-ede2-4a20-954e-2bd0dcdc334a
+[2025-11-04 18:14:28] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"5","message_text":"hai"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 18:14:28] INPUT: sender_id=2 receiver_id=5 text_len=3
+[2025-11-04 18:14:28] INSERT OK id=110 uuid=e117e412-2ee4-4937-84cf-7a52a48b9190
+[2025-11-04 18:14:38] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"halo"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":5}
+[2025-11-04 18:14:38] INPUT: sender_id=5 receiver_id=2 text_len=4
+[2025-11-04 18:14:38] INSERT OK id=111 uuid=eb031f22-513e-4177-9443-22968bb4bcc5
+[2025-11-04 18:28:12] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":""},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 18:28:12] INPUT: sender_id=2 receiver_id=6 text_len=0
+[2025-11-04 18:28:12] ERROR: Pesan tidak boleh kosong
+[2025-11-04 18:29:00] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"test"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 18:29:00] INPUT: sender_id=2 receiver_id=6 text_len=4
+[2025-11-04 18:29:00] INSERT OK id=112 uuid=8a09672d-2f54-4fed-afaa-6c9f1cb31555
+[2025-11-04 18:29:22] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"tes6"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-04 18:29:22] INPUT: sender_id=2 receiver_id=6 text_len=4
+[2025-11-04 18:29:22] INSERT OK id=113 uuid=959498c2-5055-4d9e-8ae0-43837b27a45e
+[2025-11-06 07:57:07] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"2","message_text":"tst"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-11-06 07:57:07] INPUT: sender_id=6 receiver_id=2 text_len=3
+[2025-11-06 07:57:07] INSERT OK id=114 uuid=44039c75-1d37-4917-9873-2e20dcaf4131
+[2025-11-06 08:09:18] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"test"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-06 08:09:18] INPUT: sender_id=2 receiver_id=6 text_len=4
+[2025-11-06 08:09:18] INSERT OK id=115 uuid=8bc51412-7e74-4270-bb23-3f40b7983d08
+[2025-11-06 08:09:29] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":""},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-06 08:09:29] INPUT: sender_id=2 receiver_id=6 text_len=0
+[2025-11-06 08:09:29] ERROR: Pesan tidak boleh kosong
+[2025-11-06 08:19:36] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"tst"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-06 08:19:36] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-11-06 08:19:36] INSERT OK id=116 uuid=85174467-1b12-4011-8163-27885ffd0ac7
+[2025-11-06 08:25:40] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":""},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-06 08:25:41] INPUT: sender_id=2 receiver_id=6 text_len=0
+[2025-11-06 08:25:41] ERROR: Pesan tidak boleh kosong
+[2025-11-06 09:59:16] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"LAH"},"FILES_keys":[],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
+[2025-11-06 09:59:16] INPUT: sender_id=2 receiver_id=6 text_len=3
+[2025-11-06 09:59:16] INSERT OK id=117 uuid=18b938b2-dbcb-467b-bf51-d9ff5fb4036f
+[2025-11-06 10:15:21] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"haloo"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-11-06 10:15:22] INPUT: sender_id=2 receiver_id=6 text_len=5
+[2025-11-06 10:15:23] INSERT OK id=118 uuid=cafd17a0-d45b-40e1-b954-a926fee7b228
