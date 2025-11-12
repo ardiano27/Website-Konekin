@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="sidebar.css">
+    <!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
  </head>
  <body>
 <!-- Sidebar -->
@@ -91,13 +97,12 @@
                     <span class="nav-text">Edit Profil</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="logout.php">
-                    <i class="fas fa-sign-out-alt me-2"></i>
-                    <span class="nav-text">Logout</span>
-                </a>
-            </li>
-            
+    <li class="nav-item">
+  <a class="nav-link logout-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+    <i class="fas fa-sign-out-alt me-2"></i>
+    <span class="nav-text">Logout</span>
+  </a>
+</li>
         </ul>
     </div>
 </div>
@@ -105,6 +110,24 @@
 <!-- Overlay untuk mobile -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+<!-- Logout -->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center p-5">
+        <div class="logout-icon mb-4">
+          <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <h4 class="modal-title mb-3" id="logoutModalLabel">Keluar dari Konekin?</h4>
+        <p class="text-muted mb-4">Apakah Anda yakin ingin logout? Anda akan perlu login kembali untuk mengakses akun Anda.</p>
+        <div class="d-flex justify-content-center gap-3">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <a href="logout.php" class="btn btn-primary" id="confirmLogout">Ya, Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Toggle Button untuk Mobile & Desktop -->
 
 <script src="sidebar.js"></script>

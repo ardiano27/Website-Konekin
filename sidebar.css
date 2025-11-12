@@ -1,5 +1,5 @@
 :root {
-    --primary-color: #2596be;
+    --primary-color: #0A66C2;
     --primary-dark: #1e7a9c;
     --sidebar-width: 250px;
     --sidebar-collapsed-width: 70px;
@@ -299,4 +299,84 @@
 
 * {
     transition: color var(--transition-speed), background-color var(--transition-speed), border-color var(--transition-speed);
+}
+/* Logout Modal Styling */
+#logoutModal .modal-content {
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+#logoutModal .logout-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(37, 150, 190, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(37, 150, 190, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(37, 150, 190, 0);
+  }
+}
+
+#logoutModal .btn {
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+#logoutModal .btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+}
+
+#logoutModal .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(37, 150, 190, 0.4);
+}
+
+#logoutModal .btn-secondary {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+#logoutModal .btn-secondary:hover {
+  background-color: #e9ecef;
+  transform: translateY(-2px);
+}
+
+.sidebar .logout-link:hover {
+  background-color: rgba(255, 107, 107, 0.1) !important;
+  transform: translateX(5px);
+}
+
+/* Modal backdrop styling */
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.sidebar .logout-link:hover {
+    background-color: rgba(255, 107, 107, 0.15) !important;
+    transform: translateX(5px);
+    border-left: 3px solid rgba(255, 107, 107, 0.5);
 }

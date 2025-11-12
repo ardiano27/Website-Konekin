@@ -232,3 +232,89 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+// Logout Confirmation Functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const logoutLink = document.querySelector('a[href="logout.php"]');
+  
+  if (logoutLink) {
+    logoutLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+      logoutModal.show();
+    });
+  }
+  
+  // Animasi untuk tombol konfirmasi logout
+  const confirmLogoutBtn = document.getElementById('confirmLogout');
+  if (confirmLogoutBtn) {
+    confirmLogoutBtn.addEventListener('click', function(e) {
+      // Tambah animasi loading
+      this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Logging out...';
+      this.disabled = true;
+      
+      // Redirect setelah delay pendek untuk menunjukkan animasi
+      setTimeout(() => {
+        window.location.href = this.href;
+      }, 1000);
+    });
+  }
+});
+// Logout Confirmation Functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Cari link logout di sidebar
+  const logoutLink = document.querySelector('.logout-link');
+  
+  if (logoutLink) {
+    logoutLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Tampilkan modal logout menggunakan Bootstrap
+      const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+      logoutModal.show();
+    });
+  }
+  
+  // Animasi untuk tombol konfirmasi logout
+  const confirmLogoutBtn = document.getElementById('confirmLogout');
+  if (confirmLogoutBtn) {
+    confirmLogoutBtn.addEventListener('click', function(e) {
+      // Tambah animasi loading
+      const originalText = this.innerHTML;
+      this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Logging out...';
+      this.disabled = true;
+      
+      // Redirect setelah delay pendek untuk menunjukkan animasi
+      setTimeout(() => {
+        window.location.href = this.href;
+      }, 1000);
+      
+      // Mencegah event default
+      e.preventDefault();
+    });
+  }
+  
+  // Tambahkan tooltip untuk link logout ketika sidebar collapsed
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) {
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'class') {
+          const logoutLink = document.querySelector('.logout-link');
+          if (logoutLink) {
+            if (sidebar.classList.contains('collapsed')) {
+              logoutLink.setAttribute('data-tooltip', 'Logout');
+            } else {
+              logoutLink.removeAttribute('data-tooltip');
+            }
+          }
+        }
+      });
+    });
+    
+    observer.observe(sidebar, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+  }
+});
