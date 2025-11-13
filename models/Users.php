@@ -6,7 +6,7 @@ class User {
     private $table_name = "users";
 
     public function __construct() {
-        $database = new Database();
+        $database = new DatabaseConnection();
         $this->conn = $database->getConnection();
     }
     

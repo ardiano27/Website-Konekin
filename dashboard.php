@@ -1,4 +1,8 @@
 <?php 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 error_log("Session data: " . print_r($_SESSION, true));
 
@@ -30,7 +34,7 @@ if (file_exists('includes/config/database-charts.php')) {
                 'total_users' => 8, 
                 'total_revenue' => 12500000, 
                 'avg_rating' => 4.5
-            ];
+            ];  
         }
         public function getProjectStatusStats() {
             return [
@@ -204,12 +208,7 @@ if ($user_role === 'admin') {
 <body>
 
     <?php 
-    // Include sidebar
-    if (file_exists('dashboard-sidebar.php')) {
         include 'dashboard-sidebar.php';
-    } else {
-        echo "<!-- Sidebar not found -->";
-    }
     ?>
 
     <div class="main-content">
