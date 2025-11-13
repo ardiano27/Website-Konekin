@@ -1,0 +1,21 @@
+[2025-11-09 16:21:24] REQUEST START: {"URI":"\/Website-konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"1","message_text":"dsf"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-11-09 16:21:24] INPUT: sender_id=6 receiver_id=1 text_len=3
+[2025-11-09 16:21:24] INSERT OK id=1 uuid=37c6c70d-3bed-4d69-8d11-d58c43b31692
+[2025-11-09 16:21:26] REQUEST START: {"URI":"\/Website-konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"1","message_text":"sdf"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":6}
+[2025-11-09 16:21:26] INPUT: sender_id=6 receiver_id=1 text_len=3
+[2025-11-09 16:21:26] INSERT OK id=2 uuid=dbbeba27-aa9b-4370-9b2f-136fc1aaa5f2
+[2025-11-11 03:14:34] REQUEST START: {"URI":"\/Website-konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"4","message_text":"skk"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":1}
+[2025-11-11 03:14:34] INPUT: sender_id=1 receiver_id=4 text_len=3
+[2025-11-11 03:14:34] INSERT OK id=3 uuid=e3b9dc65-4766-4295-97a5-a95c2d9ebf96
+[2025-11-11 03:14:56] REQUEST START: {"URI":"\/Website-konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"lsls"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":1}
+[2025-11-11 03:14:56] INPUT: sender_id=1 receiver_id=6 text_len=4
+[2025-11-11 03:14:56] INSERT OK id=4 uuid=b9c87843-30d6-4495-802c-9a02fbf002d9
+[2025-11-11 03:20:02] REQUEST START: {"URI":"\/Website-konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":"smm"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":1}
+[2025-11-11 03:20:02] INPUT: sender_id=1 receiver_id=6 text_len=3
+[2025-11-11 03:20:02] INSERT OK id=5 uuid=6cd81da4-e8dd-49cf-9235-570eedab033d
+[2025-11-11 03:42:40] REQUEST START: {"URI":"\/Website-konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"3","message_text":""},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":1}
+[2025-11-11 03:42:40] INPUT: sender_id=1 receiver_id=3 text_len=0
+[2025-11-11 03:42:40] ERROR: Pesan tidak boleh kosong
+[2025-11-11 03:42:50] REQUEST START: {"URI":"\/Website-konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"3","message_text":"s"},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":1}
+[2025-11-11 03:42:50] INPUT: sender_id=1 receiver_id=3 text_len=1
+[2025-11-11 03:42:50] INSERT OK id=6 uuid=aa2be429-8621-40e2-9ef4-0f2843575bde
