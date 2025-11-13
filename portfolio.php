@@ -321,8 +321,156 @@ $profile = $profile_stmt->fetch(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Modal untuk Add, View, dan Edit Portfolio -->
-    <!-- ... kode modal tetap sama ... -->
+    <!-- Modal Tambah Portfolio -->
+<div class="modal fade" id="addPortfolioModal" tabindex="-1" aria-labelledby="addPortfolioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="portfolio-action.php" method="POST" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPortfolioModalLabel">Tambah Portfolio Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="add">
+                    
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Judul Portfolio</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Deskripsi</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="project_url" class="form-label">URL Proyek (opsional)</label>
+                        <input type="url" class="form-control" id="project_url" name="project_url" placeholder="https://...">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="project_date" class="form-label">Tanggal Proyek</label>
+                        <input type="date" class="form-control" id="project_date" name="project_date">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="video_url" class="form-label">URL Video (opsional)</label>
+                        <input type="url" class="form-control" id="video_url" name="video_url" placeholder="https://...">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="skills_used" class="form-label">Keahlian yang Digunakan</label>
+                        <input type="text" class="form-control" id="skills_used" name="skills_used" placeholder="Pisahkan dengan koma, contoh: Web Design, UI/UX, Photography">
+                        <div class="form-text">Pisahkan setiap keahlian dengan koma</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="images" class="form-label">Gambar Portfolio</label>
+                        <input type="file" class="form-control" id="images" name="images[]" multiple accept="image/*">
+                        <div class="form-text">Pilih satu atau beberapa gambar</div>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="is_public" name="is_public" checked>
+                        <label class="form-check-label" for="is_public">
+                            Tampilkan portfolio secara publik
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Portfolio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Portfolio -->
+<div class="modal fade" id="editPortfolioModal" tabindex="-1" aria-labelledby="editPortfolioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="portfolio-action.php" method="POST" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPortfolioModalLabel">Edit Portfolio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="action" value="edit">
+                    <input type="hidden" name="portfolio_id" id="edit_portfolio_id">
+                    
+                    <div class="mb-3">
+                        <label for="edit_title" class="form-label">Judul Portfolio</label>
+                        <input type="text" class="form-control" id="edit_title" name="title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_description" class="form-label">Deskripsi</label>
+                        <textarea class="form-control" id="edit_description" name="description" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_project_url" class="form-label">URL Proyek (opsional)</label>
+                        <input type="url" class="form-control" id="edit_project_url" name="project_url" placeholder="https://...">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_project_date" class="form-label">Tanggal Proyek</label>
+                        <input type="date" class="form-control" id="edit_project_date" name="project_date">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_video_url" class="form-label">URL Video (opsional)</label>
+                        <input type="url" class="form-control" id="edit_video_url" name="video_url" placeholder="https://...">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_skills_used" class="form-label">Keahlian yang Digunakan</label>
+                        <input type="text" class="form-control" id="edit_skills_used" name="skills_used" placeholder="Pisahkan dengan koma, contoh: Web Design, UI/UX, Photography">
+                        <div class="form-text">Pisahkan setiap keahlian dengan koma</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit_images" class="form-label">Gambar Tambahan</label>
+                        <input type="file" class="form-control" id="edit_images" name="images[]" multiple accept="image/*">
+                        <div class="form-text">Pilih gambar tambahan (gambar existing akan tetap tersimpan)</div>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="edit_is_public" name="is_public">
+                        <label class="form-check-label" for="edit_is_public">
+                            Tampilkan portfolio secara publik
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Update Portfolio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal View Portfolio -->
+<div class="modal fade" id="viewPortfolioModal" tabindex="-1" aria-labelledby="viewPortfolioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewPortfolioTitle">Detail Portfolio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="viewPortfolioContent">
+                    <!-- Content akan diisi oleh JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -375,8 +523,22 @@ $profile = $profile_stmt->fetch(PDO::FETCH_ASSOC);
                 document.body.appendChild(form);
                 form.submit();
             }
+            function editPortfolio(portfolio) {
+                document.getElementById('edit_portfolio_id').value = portfolio.id;
+                document.getElementById('edit_title').value = portfolio.title;
+                document.getElementById('edit_description').value = portfolio.description;
+                document.getElementById('edit_project_url').value = portfolio.project_url || '';
+                document.getElementById('edit_project_date').value = portfolio.project_date || '';
+                document.getElementById('edit_video_url').value = portfolio.video_url || '';
+                
+                const skillsUsed = JSON.parse(portfolio.skills_used || '[]');
+                document.getElementById('edit_skills_used').value = skillsUsed.join(', ');
+                
+                document.getElementById('edit_is_public').checked = portfolio.is_public == 1;
+            }
         }
     </script>
+    
 </body>
 </html>
 
