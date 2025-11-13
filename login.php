@@ -27,10 +27,13 @@ if(isset($_POST["login"])){
                 $_SESSION['full_name'] = $user['full_name'];
                 $_SESSION['email'] = $user['email'];
                 
+                // Redirect berdasarkan user_type
                 if($user['user_type'] === 'umkm'){
-                    header("Location: dashboard.php");
+                    header("Location: dashboard-umkm.php");
+                } else if($user['user_type'] === 'admin') {
+                    header("Location: dashboard-admin.php");
                 } else {
-                    header("Location: dashboard.php");
+                    header("Location: dashboard-creative.php");
                 }
                 exit;
             } else {
@@ -59,7 +62,7 @@ if(isset($_GET['status']) && $_GET['status'] == 'registered'){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Konekin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {

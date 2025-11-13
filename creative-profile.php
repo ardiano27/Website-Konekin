@@ -6,7 +6,7 @@ if ($_SESSION['user_type'] !== 'creative') {
     exit();
 }
 
-require_once "config/database.php";
+require_once "config/Database.php";
 
 try {
 
@@ -193,16 +193,16 @@ try {
                         </h5>
                         <div class="d-flex gap-3">
                             <?php if (!empty($profile['linkedin_url'])): ?>
-                            <a href="<?php echo htmlspecialchars($profile['linkedin_url']); ?>" 
-                               target="_blank" class="text-decoration-none">
-                                <i class="fab fa-linkedin fa-2x text-primary"></i>
-                            </a>
+                                <a href="<?php echo htmlspecialchars($profile['linkedin_url']); ?>" 
+                                target="_blank" class="text-decoration-none">
+                                    <i class="fab fa-linkedin fa-2x text-primary"></i>
+                                </a>
                             <?php endif; ?>
                             <?php if (!empty($profile['instagram_url'])): ?>
-                            <a href="<?php echo htmlspecialchars($profile['instagram_url']); ?>" 
-                               target="_blank" class="text-decoration-none">
-                                <i class="fab fa-instagram fa-2x text-danger"></i>
-                            </a>
+                                <a href="<?php echo htmlspecialchars($profile['instagram_url']); ?>" 
+                                target="_blank" class="text-decoration-none">
+                                    <i class="fab fa-instagram fa-2x text-danger"></i>
+                                </a>
                             <?php endif; ?>
                         </div>
                     </div>
