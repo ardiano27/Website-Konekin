@@ -292,13 +292,13 @@
             <!-- Menu Navigasi -->
             <ul class="navbar-nav-konekin">
                 <li class="nav-item-konekin">
-                    <a class="nav-link-konekin" href="<?php echo $_SESSION['user_role'] === 'umkm' ? 'dashboard-umkm.php' : 'dashboard-creative.php'; ?>">
+                    <a class="nav-link-konekin" href="<?php echo $_SESSION['user_type'] === 'umkm' ? 'dashboard-umkm.php' : 'dashboard-creative.php'; ?>">
                         <i class="fas fa-home me-1"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
                 
-                <?php if ($_SESSION['user_role'] === 'umkm'): ?>
+                <?php if ($_SESSION['user_type'] === 'umkm'): ?>
                     <li class="nav-item-konekin">
                         <a class="nav-link-konekin" href="projects.php">
                             <i class="fas fa-project-diagram me-1"></i>
@@ -345,11 +345,11 @@
             // Menentukan placeholder berdasarkan tipe user
             $searchPlaceholder = "Cari...";
             
-            if ($_SESSION['user_role'] === 'creative_worker') {
+            if ($_SESSION['user_type'] === 'creative_worker') {
                 $searchPlaceholder = "Cari proyek...";
-            } elseif ($_SESSION['user_role'] === 'umkm') {
+            } elseif ($_SESSION['user_type'] === 'umkm') {
                 $searchPlaceholder = "Cari kreator atau freelancer...";
-            } elseif ($_SESSION['user_role'] === 'admin') {
+            } elseif ($_SESSION['user_type'] === 'admin') {
                 $searchPlaceholder = "Cari pengguna atau proyek...";
             }
             ?>
@@ -372,7 +372,7 @@
                             'umkm' => 'UMKM/Bisnis', 
                             'creative_worker' => 'Creative Worker'
                         ];
-                        echo $roleMap[$_SESSION['user_role']] ?? 'User';
+                        echo $roleMap[$_SESSION['user_type']] ?? 'User';
                         ?>
                     </small>
                 </div>
