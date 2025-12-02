@@ -36,7 +36,11 @@ $proposals_sql = "
     WHERE pr.project_id = :project_id
     ORDER BY pr.submitted_at DESC
 ";
-
+// Di bagian atas file, setelah mendapatkan data project
+$new_proposals_count_sql = "SELECT COUNT(*) FROM proposals WHERE project_id = :project_id AND status = 'submitted'";
+$new_proposals_stmt = $conn->prepare($new_proposals_count_sql);
+$new_proposals_stmt->execute([':project_id' => $project_id]);
+$new_proposals_count = $new_proposals_stmt->fetchColumn();
 $proposals_stmt = $conn->prepare($proposals_sql);
 $proposals_stmt->execute([':project_id' => $project_id]);
 $proposals = $proposals_stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -6,12 +6,10 @@
     exit;
     }
 
-    // Koneksi database (menggunakan file Database.php yang sudah ada)
     require_once 'config/Database.php';
     $database = new DatabaseConnection();
     $conn = $database->getConnection();
 
-    // Query untuk mendapatkan data statistik creative worker
     $user_id = 1; // ID user dari session, disini disimulasikan
 
     try {
