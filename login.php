@@ -153,7 +153,7 @@ if(isset($_GET['status']) && $_GET['status'] == 'registered'){
                     </form>
 
                     <div class="text-center mt-3">
-                        <a href="#" class="text-primary">Lupa password?</a>
+                        <a href="forgot-password.php" class="text-primary">Lupa password?</a>
                     </div>
                 </div>
 

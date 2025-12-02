@@ -246,9 +246,9 @@ function generateUUID() {
                             <input class="form-check-input" type="checkbox" id="agree_terms" required>
                             <label class="form-check-label" for="agree_terms">
                                 Ya, saya memahami dan menyetujui 
-                                <a href="#" class="text-primary">Syarat & Ketentuan</a> 
+                                <a href="terms-conditions.php" class="text-primary">Syarat & Ketentuan</a> 
                                 dan 
-                                <a href="#" class="text-primary">Kebijakan Privasi</a> Konekin
+                                <a href="privacy-policy.php" class="text-primary">Kebijakan Privasi</a> Konekin
                             </label>
                         </div>
                         
