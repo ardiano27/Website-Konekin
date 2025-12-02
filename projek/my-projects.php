@@ -2,9 +2,8 @@
 session_start();
 require_once 'config/Database.php';
 
-// Check if user is logged in and is creative worker
 if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'creative') {
-    header("Location: login.php");
+    header("Location: dashboard.php");
     exit();
 }
 
