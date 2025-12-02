@@ -2,43 +2,55 @@
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
+// Optional CORS (aktifkan jika frontend di origin berbeda)
+if (!empty($_SERVER['HTTP_ORIGIN'])) {
+    header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
+    header('Access-Control-Allow-Credentials: true');
+    header('Vary: Origin');
+}
+
 // Security headers
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('X-XSS-Protection: 1; mode=block');
 
-// Error reporting untuk development - HAPUS INI DI PRODUCTION
+// Development error reporting (ubah/remove di production)
 error_reporting(E_ALL);
-ini_set('display_errors', 0);
-
-// Buffer output untuk menangkap error
-ob_start();
+ini_set('display_errors', 1);
 
 try {
     require_once __DIR__ . '/config/Database.php';
 
     // Check if authenticated
     if (!isset($_SESSION['user_id'])) {
-        throw new Exception('Not authenticated');
+        http_response_code(401);
+        echo json_encode([
+            'error' => 'Not authenticated',
+            'messages' => [],
+            'count' => 0
+        ]);
+        exit;
     }
 
     $database = new DatabaseConnection();
     $conn = $database->getConnection();
 
-    // Validate database connection
     if (!$conn) {
         throw new Exception('Database connection failed');
     }
 
-    $current_user = (int) $_SESSION['user_id'];
-    $other_user = isset($_GET['other_user']) ? (int)$_GET['other_user'] : 0;
-    $since_id = isset($_GET['since_id']) ? (int)$_GET['since_id'] : 0;
+    // PDO attributes
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
-    // Validate input
+    $current_user = (int) $_SESSION['user_id'];
+    $other_user = isset($_GET['other_user']) ? (int) $_GET['other_user'] : 0;
+    $since_id = isset($_GET['since_id']) ? (int) $_GET['since_id'] : 0;
+
     if ($other_user <= 0) {
         echo json_encode([
-            'messages' => [], 
-            'error' => 'Invalid other_user parameter', 
+            'messages' => [],
+            'error' => 'Invalid other_user parameter',
             'count' => 0,
             'current_user' => $current_user,
             'other_user' => $other_user
@@ -46,11 +58,10 @@ try {
         exit;
     }
 
-    // Prevent fetching messages with self
     if ($current_user === $other_user) {
         echo json_encode([
-            'messages' => [], 
-            'error' => 'Cannot chat with yourself', 
+            'messages' => [],
+            'error' => 'Cannot chat with yourself',
             'count' => 0,
             'current_user' => $current_user,
             'other_user' => $other_user
@@ -58,160 +69,167 @@ try {
         exit;
     }
 
-    // Rate limiting check (sementara di-nonaktifkan untuk testing)
-    /*
-    $rateLimitKey = 'fetch_rate_' . $current_user;
-    $rateLimitFile = sys_get_temp_dir() . '/' . $rateLimitKey;
-    
-    if (file_exists($rateLimitFile)) {
-        $lastRequest = (int)file_get_contents($rateLimitFile);
-        $timeDiff = time() - $lastRequest;
-        
-        if ($timeDiff < 1) {
-            http_response_code(429);
-            echo json_encode([
-                'error' => 'Too many requests', 
-                'messages' => [], 
-                'count' => 0
-            ]);
-            exit;
-        }
-    }
-    
-    file_put_contents($rateLimitFile, time());
-    */
-
-    // Build query dengan positional parameters (menghindari duplikat parameter names)
+    // Build query
     $sql = "
         SELECT 
             id, 
             sender_id, 
             receiver_id, 
             message_text, 
-            attachment_urls, 
+            COALESCE(attachment_urls, '') as attachment_urls, 
             is_read, 
             created_at
         FROM messages
         WHERE 
             (
-                (sender_id = ? AND receiver_id = ?)
+                (sender_id = :current_user AND receiver_id = :other_user)
                 OR 
-                (sender_id = ? AND receiver_id = ?)
+                (sender_id = :other_user2 AND receiver_id = :current_user2)
             )
     ";
-    
+
     $params = [
-        $current_user, // sender_id pertama
-        $other_user,   // receiver_id pertama  
-        $other_user,   // sender_id kedua
-        $current_user  // receiver_id kedua
+        ':current_user' => $current_user,
+        ':other_user' => $other_user,
+        ':other_user2' => $other_user,
+        ':current_user2' => $current_user
     ];
-    
-    // Incremental loading - only fetch new messages
+
     if ($since_id > 0) {
-        $sql .= " AND id > ?";
-        $params[] = $since_id;
+        $sql .= " AND id > :since_id";
+        $params[':since_id'] = $since_id;
     }
-    
-    // Limit messages to prevent memory issues
-    $sql .= " ORDER BY created_at ASC, id ASC LIMIT 100";
-    
+
+    $sql .= " ORDER BY id ASC LIMIT 200";
+
     $stmt = $conn->prepare($sql);
-    
-    // Debug logging
-    error_log("Fetch messages - User: $current_user, Other: $other_user, Since: $since_id");
-    error_log("SQL: " . $sql);
-    error_log("Params: " . implode(', ', $params));
-    
-    $stmt->execute($params);
-    $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Log hasil query
-    error_log("Found " . count($messages) . " messages between user $current_user and $other_user");
-
-    // Sanitize output - remove any potential XSS
-    foreach ($messages as &$msg) {
-        // Message text is already escaped in frontend, but double-check
-        $msg['message_text'] = htmlspecialchars($msg['message_text'] ?? '', ENT_QUOTES, 'UTF-8');
-        
-        // Ensure created_at is properly formatted
-        if (isset($msg['created_at'])) {
-            $msg['created_at'] = htmlspecialchars($msg['created_at'], ENT_QUOTES, 'UTF-8');
-        }
-        
-        // Ensure attachment_urls is properly formatted
-        if (isset($msg['attachment_urls'])) {
-            $msg['attachment_urls'] = htmlspecialchars($msg['attachment_urls'], ENT_QUOTES, 'UTF-8');
-        }
-        
-        // Convert is_read to boolean
-        $msg['is_read'] = (bool)($msg['is_read'] ?? false);
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
     }
-    unset($msg); // Break reference
 
-    // Mark received messages as read (only messages TO current user FROM other user)
-    if (!empty($messages)) {
+    $stmt->execute();
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $messages = [];
+    $last_id = 0;
+
+    foreach ($rows as $r) {
+        $id = isset($r['id']) ? (int)$r['id'] : 0;
+        $sender_id = isset($r['sender_id']) ? (int)$r['sender_id'] : 0;
+        $receiver_id = isset($r['receiver_id']) ? (int)$r['receiver_id'] : 0;
+        $text = isset($r['message_text']) ? $r['message_text'] : '';
+        $created_at = isset($r['created_at']) ? $r['created_at'] : date('Y-m-d H:i:s');
+        $is_read = (bool)($r['is_read'] ?? false);
+        $attachment_raw = $r['attachment_urls'] ?? '';
+
+        // Sanitize text
+        $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        $created_at = htmlspecialchars($created_at, ENT_QUOTES, 'UTF-8');
+
+        // Decode attachment_urls as JSON
+        $attachments = [];
+        if ($attachment_raw !== '' && $attachment_raw !== 'null') {
+            $decoded = json_decode($attachment_raw, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                // Fix URLs to be correct for web access - DIPERBAIKI DI SINI
+                foreach ($decoded as &$attachment) {
+                    if (isset($attachment['url'])) {
+                        // Pastikan URL benar untuk akses web
+                        $url = $attachment['url'];
+                        
+                        // Jika URL relatif (tanpa http/https), tambahkan slash depan
+                        if (!preg_match('/^https?:\/\//', $url) && !str_starts_with($url, '/')) {
+                            $attachment['url'] = '/' . $url;
+                        }
+                        
+                        // Add download URL
+                        $filename = basename($url);
+                        $attachment['download_url'] = '/download_file.php?file=' . urlencode($filename) . 
+                                                     '&msg_id=' . $id . 
+                                                     '&original=' . urlencode($attachment['original_name'] ?? $filename);
+                    }
+                }
+                $attachments = $decoded;
+            } else {
+                // Try to handle as string URL
+                if (!empty($attachment_raw) && $attachment_raw !== '[]' && $attachment_raw !== 'null') {
+                    $url = $attachment_raw;
+                    // Fix relative URL
+                    if (!preg_match('/^https?:\/\//', $url) && !str_starts_with($url, '/')) {
+                        $url = '/' . $url;
+                    }
+                    $filename = basename($url);
+                    $attachments = [[
+                        'url' => $url,
+                        'original_name' => $filename,
+                        'download_url' => '/download_file.php?file=' . urlencode($filename) . 
+                                         '&msg_id=' . $id . 
+                                         '&original=' . urlencode($filename)
+                    ]];
+                }
+            }
+        }
+
+        $messages[] = [
+            'id' => $id,
+            'sender_id' => $sender_id,
+            'receiver_id' => $receiver_id,
+            'message_text' => $text,
+            'attachment_urls' => $attachments,
+            'is_read' => $is_read,
+            'created_at' => $created_at
+        ];
+
+        if ($id > $last_id) $last_id = $id;
+    }
+
+    // Mark fetched incoming messages as read (only those received by current user and returned)
+    if ($last_id > 0) {
         $updateSql = "
-            UPDATE messages 
-            SET is_read = 1 
-            WHERE receiver_id = ? 
-            AND sender_id = ? 
+            UPDATE messages
+            SET is_read = 1
+            WHERE receiver_id = :receiver_id
+            AND sender_id = :sender_id
+            AND id <= :last_id
             AND is_read = 0
         ";
-        
         $updateStmt = $conn->prepare($updateSql);
         $updateStmt->execute([
-            $current_user,
-            $other_user
+            ':receiver_id' => $current_user,
+            ':sender_id' => $other_user,
+            ':last_id' => $last_id
         ]);
-        
-        // Log read receipt count for debugging
-        $readCount = $updateStmt->rowCount();
-        if ($readCount > 0) {
-            error_log("Marked {$readCount} messages as read for user {$current_user} from {$other_user}");
-        }
     }
 
-    // Clear any unexpected output sebelum mengirim JSON
-    ob_clean();
-    
     echo json_encode([
         'messages' => $messages,
         'count' => count($messages),
         'since_id' => $since_id,
+        'last_id' => $last_id,
         'current_user' => $current_user,
         'other_user' => $other_user,
         'error' => null
-    ], JSON_UNESCAPED_UNICODE);
-    
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
 } catch (PDOException $e) {
-    // Clear buffer before sending error
-    ob_clean();
-    
-    error_log('fetch_message.php PDO error: ' . $e->getMessage());
-    error_log('PDO error code: ' . $e->getCode());
-    
+    error_log('fetch_messages.php PDO error: ' . $e->getMessage());
+
     http_response_code(500);
     echo json_encode([
         'error' => 'Database error occurred',
         'messages' => [],
         'count' => 0,
-        'debug_info' => 'Check server logs for details' // Hanya untuk development
+        'debug' => $e->getMessage()
     ]);
 } catch (Exception $e) {
-    // Clear buffer before sending error
-    ob_clean();
-    
-    error_log('fetch_message.php unexpected error: ' . $e->getMessage());
-    
+    error_log('fetch_messages.php unexpected error: ' . $e->getMessage());
+
     http_response_code(500);
     echo json_encode([
-        'error' => 'An unexpected error occurred: ' . $e->getMessage(),
+        'error' => 'An unexpected error occurred',
         'messages' => [],
         'count' => 0
     ]);
 }
-
-// End buffering
-ob_end_flush();
 ?>

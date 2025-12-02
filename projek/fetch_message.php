@@ -211,7 +211,11 @@ try {
         'count' => 0
     ]);
 }
-
+// Di fetch_messages.php, pastikan bagian ini ada:
+if ($since_id > 0) {
+    $sql .= " AND id > :since_id";
+    $params[':since_id'] = $since_id;
+}
 // End buffering
 ob_end_flush();
 ?>
