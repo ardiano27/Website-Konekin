@@ -16,6 +16,44 @@ $category = isset($_GET['category']) ? $_GET['category'] : '';
 $budget_min = isset($_GET['budget_min']) ? floatval($_GET['budget_min']) : 0;
 $budget_max = isset($_GET['budget_max']) ? floatval($_GET['budget_max']) : 0;
 
+// Handle save/unsave project via POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $action = $_POST['action'];
+    $project_id = isset($_POST['project_id']) ? intval($_POST['project_id']) : 0;
+    
+    if ($project_id > 0) {
+        if ($action === 'save_project') {
+            // Check if already saved
+            $check_sql = "SELECT id FROM saved_projects WHERE user_id = :user_id AND project_id = :project_id";
+            $check_stmt = $conn->prepare($check_sql);
+            $check_stmt->execute([
+                ':user_id' => $_SESSION['user_id'],
+                ':project_id' => $project_id
+            ]);
+            
+            if ($check_stmt->rowCount() === 0) {
+                $save_sql = "INSERT INTO saved_projects (user_id, project_id) VALUES (:user_id, :project_id)";
+                $save_stmt = $conn->prepare($save_sql);
+                $save_stmt->execute([
+                    ':user_id' => $_SESSION['user_id'],
+                    ':project_id' => $project_id
+                ]);
+            }
+        } elseif ($action === 'unsave_project') {
+            $unsave_sql = "DELETE FROM saved_projects WHERE user_id = :user_id AND project_id = :project_id";
+            $unsave_stmt = $conn->prepare($unsave_sql);
+            $unsave_stmt->execute([
+                ':user_id' => $_SESSION['user_id'],
+                ':project_id' => $project_id
+            ]);
+        }
+        
+        // Redirect back to preserve filters
+        header("Location: find-projects.php?" . $_SERVER['QUERY_STRING']);
+        exit;
+    }
+}
+
 // Build query dengan PDO
 $sql = "
     SELECT 
@@ -23,8 +61,10 @@ $sql = "
         u.full_name as umkm_name,
         up.business_name,
         up.business_logo_url,
+        up.business_type,
         COUNT(DISTINCT pr.id) as proposal_count,
-        (SELECT COUNT(*) FROM proposals pr2 WHERE pr2.project_id = p.id AND pr2.creative_user_id = :user_id) as already_applied
+        (SELECT COUNT(*) FROM proposals pr2 WHERE pr2.project_id = p.id AND pr2.creative_user_id = :user_id) as already_applied,
+        (SELECT COUNT(*) FROM saved_projects sp WHERE sp.project_id = p.id AND sp.user_id = :user_id_saved) as is_saved
     FROM projects p
     JOIN users u ON p.umkm_user_id = u.id
     LEFT JOIN umkm_profiles up ON u.id = up.user_id
@@ -32,7 +72,10 @@ $sql = "
     WHERE p.status = 'open'
 ";
 
-$params = [':user_id' => $_SESSION['user_id']];
+$params = [
+    ':user_id' => $_SESSION['user_id'],
+    ':user_id_saved' => $_SESSION['user_id']
+];
 
 // Tambahkan kondisi pencarian
 if (!empty($query)) {
@@ -79,227 +122,540 @@ try {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #549efeff;
-            --primary-dark: #82a8db;
-            --accent-color: #FFC300;
-            --light-bg: #f8f9fa;
-            --text-dark: #343a40;
-            --text-muted: #6c757d;
-            --border-color: #e9ecef;
-            --shadow-light: 0 2px 10px rgba(0,0,0,0.08);
-            --shadow-medium: 0 5px 15px rgba(0,0,0,0.1);
-            --shadow-hover: 0 10px 25px rgba(0,0,0,0.15);
-            --border-radius: 12px;
+            --primary: #549efeff;
+            --primary-light: #82a8db;
+            --primary-dark: #3498db;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #dee2e6;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --hover-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
         }
         
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f5f7fa;
-            color: var(--text-dark);
+            color: var(--dark);
+            line-height: 1.6;
         }
         
-        h1, h2, h3, h4, h5, h6, .project-card h5 {
+        h1, h2, h3, h4, h5, h6 {
             font-family: 'Poppins', sans-serif;
             font-weight: 600;
         }
         
         .main-content {
-            padding: 10px 10px 10px;
-            margin-top: 0;
+            padding-horizontal: 20px;
+            padding-top: 10px;
         }
         
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-            }
-        }
-        
+        /* Header */
         .page-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            border-radius: var(--border-radius);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-header p {
+            opacity: 0.9;
+            margin-bottom: 0;
+            font-size: 1.1rem;
+        }
+        
+        /* Filter Sidebar */
+        .filter-sidebar {
+            background: white;
+            border-radius: 16px;
             padding: 25px;
             margin-bottom: 25px;
-            box-shadow: var(--shadow-medium);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+            position: sticky;
+            top: 20px;
         }
         
-        .filter-section {
-            background-color: white;
-            border-radius: var(--border-radius);
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-light);
-            border: 1px solid var(--border-color);
-        }
-        
-        .project-card {
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            height: 100%;
-            background-color: white;
-            box-shadow: var(--shadow-light);
-        }
-        
-        .project-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-hover);
-        }
-        
-        .budget-badge {
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: 700;
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-        
-        .skill-tag {
-            background-color: #f1f8ff;
-            border: 1px solid #d0e7ff;
-            color: var(--primary-color);
-            border-radius: 20px;
-            padding: 5px 12px;
-            font-size: 0.8rem;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            display: inline-block;
-            font-weight: 500;
-        }
-        
-        .apply-button {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-            color: var(--text-dark) !important;
-            font-weight: 700;
-            transition: all 0.2s ease;
-            border-radius: 8px;
-            padding: 8px 20px;
-        }
-        
-        .apply-button:hover {
-            background-color: #e5b100;
-            border-color: #e5b100;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(255, 195, 0, 0.4);
-        }
-        
-        .umkm-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--border-color);
-        }
-        
-        .project-category {
-            display: inline-block;
-            background-color: #e9f7fe;
-            color: var(--primary-color);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-        
-        .card-body {
-            padding: 25px;
-        }
-        
-        .project-meta {
+        .filter-header {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid var(--border-color);
-        }
-        
-        .proposal-count {
-            display: flex;
-            align-items: center;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-        
-        .deadline-badge {
-            background-color: #fff3cd;
-            color: #856404;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-muted);
-        }
-        
-        .empty-state i {
-            font-size: 4rem;
             margin-bottom: 20px;
-            opacity: 0.5;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
         }
         
-        .form-label {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-dark);
-        }
-        
-        .form-control, .form-select {
-            border-radius: 8px;
-            padding: 10px 15px;
-            border: 1px solid var(--border-color);
-            transition: all 0.2s;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(37, 150, 190, 0.25);
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-weight: 600;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            border-color: var(--primary-dark);
+        .filter-header h5 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--dark);
         }
         
         .filter-toggle {
             display: none;
             margin-bottom: 15px;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: 600;
         }
         
         @media (max-width: 992px) {
             .filter-toggle {
                 display: block;
             }
+        }
+        
+        /* Form Elements */
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.15);
+        }
+        
+        .input-group-text {
+            background: var(--light);
+            border: 1px solid var(--border);
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-outline-secondary {
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: 500;
+        }
+        
+        .btn-light {
+            border-radius: 10px;
+            font-weight: 500;
+            background: white;
+            border: 1px solid var(--border);
+        }
+        
+        /* Project List */
+        .project-list {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        
+        .results-header {
+            background: white;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .results-count {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .sort-select {
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        
+        /* Project Cards */
+        .project-card {
+            padding: 25px;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .project-card:hover {
+            background-color: #f8faff;
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .project-card:last-child {
+            border-bottom: none;
+        }
+        
+        /* Project Elements */
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .project-header-left {
+            flex: 1;
+        }
+        
+        .project-category {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .project-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            color: var(--dark);
+        }
+        
+        .project-description {
+            color: var(--gray);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+        
+        .skill-tag {
+            background: rgba(67, 97, 238, 0.08);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+            color: var(--primary);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        
+        .skill-tag:hover {
+            background: rgba(67, 97, 238, 0.15);
+        }
+        
+        .umkm-info {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .umkm-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border);
+            margin-right: 12px;
+        }
+        
+        .umkm-details h6 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        
+        .umkm-details p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        /* Project Meta */
+        .project-meta {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .budget-badge {
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            color: white;
+            font-weight: 600;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 12px;
+            box-shadow: 0 3px 5px rgba(67, 97, 238, 0.2);
+        }
+        
+        .deadline-badge {
+            background: #fff9e6;
+            color: #b38b00;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 15px;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .proposal-count {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+        
+        .proposal-count i {
+            margin-right: 5px;
+            color: var(--primary);
+        }
+        
+        .apply-button {
+            background: linear-gradient(to right, var(--accent), #ff6b9d);
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 12px 20px;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .apply-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(247, 37, 133, 0.3);
+            color: white;
+        }
+        
+        .applied-badge {
+            background: var(--success);
+            color: white;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        /* Save Button */
+        .save-btn {
+            border-radius: 20px;
+            padding: 6px 15px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            border-width: 2px;
+            min-width: 100px;
+        }
+        
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .save-btn.saved {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .save-btn.saved:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        
+        /* Popular Categories */
+        .popular-categories {
+            margin-top: 25px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+        
+        .popular-categories h6 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+        }
+        
+        .category-checkbox {
+            margin-bottom: 10px;
+        }
+        
+        .category-checkbox .form-check-label {
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .category-checkbox .form-check-label:hover {
+            color: var(--primary);
+        }
+        
+        .category-checkbox .form-check-input {
+            margin-right: 10px;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+            color: var(--primary);
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .empty-state p {
+            font-size: 1rem;
+            margin-bottom: 25px;
+        }
+        
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px 10px;
+            }
             
-            .filter-section {
-                margin-bottom: 20px;
+            .project-card {
+                padding: 20px;
+            }
+            
+            .results-header {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .sort-select {
+                margin-top: 10px;
+                align-self: flex-end;
+            }
+            
+            .project-title {
+                font-size: 1.1rem;
+            }
+            
+            .project-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .save-btn {
+                align-self: flex-start;
             }
         }
         
-        .category-icon {
-            width: 24px;
-            height: 24px;
+        /* Active Filter Indicator */
+        .filter-active {
+            background: var(--success) !important;
+        }
+        
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
             margin-right: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1060;
+        }
+        
+        .custom-toast {
+            min-width: 300px;
+            background: white;
+            border-left: 4px solid var(--primary);
+            box-shadow: var(--hover-shadow);
         }
     </style>
 </head>
@@ -308,7 +664,7 @@ try {
     
     <div class="main-content">
         <div class="container-fluid">
-            <!-- Header Section -->
+            <!-- Header -->
             <div class="page-header">
                 <div class="row align-items-center">
                     <div class="col-md-8">
@@ -316,83 +672,137 @@ try {
                         <p class="mb-0">Temukan proyek yang sesuai dengan keahlian dan minat Anda</p>
                     </div>
                     <div class="col-md-4 text-md-end">
-                        <a href="my-proposals.php" class="btn btn-light me-2">
+                        <a href="saved-projects.php" class="btn btn-light me-2">
+                            <i class="fas fa-bookmark me-1"></i>Proyek Disimpan
+                        </a>
+                        <a href="my-proposals.php" class="btn btn-light">
                             <i class="fas fa-file-alt me-1"></i>Proposal Saya
                         </a>
                     </div>
                 </div>
             </div>
             
-            <!-- Filter Toggle for Mobile -->
-            <button class="btn btn-primary filter-toggle w-100" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
-                <i class="fas fa-filter me-2"></i>Filter Pencarian
-            </button>
-            
-            <!-- Filter Section -->
-            <div class="filter-section collapse show" id="filterCollapse">
-                <h5 class="mb-3"><i class="fas fa-sliders-h me-2"></i>Saring Hasil</h5>
-                <form method="GET" action="find-projects.php">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label for="query" class="form-label">Kata Kunci</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search"></i></span>
-                                <input type="text" class="form-control border-start-0" id="query" name="query" placeholder="Cari proyek berdasarkan judul atau deskripsi..." value="<?php echo htmlspecialchars($query); ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="category" class="form-label">Kategori</label>
-                            <select class="form-select" id="category" name="category">
-                                <option value="all" <?php echo $category === 'all' ? 'selected' : ''; ?>>Semua Kategori</option>
-                                <option value="website" <?php echo $category === 'website' ? 'selected' : ''; ?>><i class="fas fa-globe me-1"></i> Website</option>
-                                <option value="logo" <?php echo $category === 'logo' ? 'selected' : ''; ?>><i class="fas fa-palette me-1"></i> Logo</option>
-                                <option value="social_media" <?php echo $category === 'social_media' ? 'selected' : ''; ?>><i class="fas fa-hashtag me-1"></i> Social Media</option>
-                                <option value="video" <?php echo $category === 'video' ? 'selected' : ''; ?>><i class="fas fa-video me-1"></i> Video</option>
-                                <option value="content" <?php echo $category === 'content' ? 'selected' : ''; ?>><i class="fas fa-file-alt me-1"></i> Content</option>
-                                <option value="marketing" <?php echo $category === 'marketing' ? 'selected' : ''; ?>><i class="fas fa-bullhorn me-1"></i> Marketing</option>
-                                <option value="other" <?php echo $category === 'other' ? 'selected' : ''; ?>><i class="fas fa-ellipsis-h me-1"></i> Lainnya</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label for="budget_min" class="form-label">Budget Min</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light">Rp</span>
-                                <input type="number" class="form-control" id="budget_min" name="budget_min" placeholder="Min" value="<?php echo $budget_min; ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <label for="budget_max" class="form-label">Budget Max</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light">Rp</span>
-                                <input type="number" class="form-control" id="budget_max" name="budget_max" placeholder="Max" value="<?php echo $budget_max; ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-1 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Terapkan</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            
-            <!-- Results Section -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="mb-0"><?php echo count($projects); ?> Proyek Ditemukan</h4>
-                <div class="text-muted">
-                    <?php if (!empty($query) || !empty($category) || $budget_min > 0 || $budget_max > 0): ?>
-                        <a href="find-projects.php" class="text-primary"><i class="fas fa-times me-1"></i>Reset Filter</a>
-                    <?php endif; ?>
-                </div>
-            </div>
-            
             <div class="row">
-                <?php if (count($projects) > 0): ?>
-                    <?php foreach ($projects as $project): ?>
-                        <div class="col-xl-4 col-lg-6 mb-4">
-                            <div class="card project-card h-100">
-                                <div class="card-body d-flex flex-column">
-                                    <!-- Project Header -->
-                                    <div class="d-flex justify-content-between align-items-start mb-3">
-                                        <div class="flex-grow-1">
+                <!-- Filter Sidebar -->
+                <div class="col-lg-3">
+                    <button class="btn btn-primary filter-toggle w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                        <i class="fas fa-filter me-2"></i>Filter Pencarian
+                    </button>
+                    
+                    <div class="filter-sidebar collapse show" id="filterCollapse">
+                        <div class="filter-header">
+                            <h5><i class="fas fa-sliders-h me-2"></i>Filter</h5>
+                        </div>
+                        <form method="GET" action="find-projects.php">
+                            <!-- Kata Kunci -->
+                            <div class="mb-4">
+                                <label class="form-label">Kata Kunci</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-search"></i></span>
+                                    <input type="text" class="form-control border-start-0" name="query" placeholder="Cari proyek..." value="<?php echo htmlspecialchars($query); ?>">
+                                </div>
+                            </div>
+                            
+                            <!-- Kategori -->
+                            <div class="mb-4">
+                                <label class="form-label">Kategori</label>
+                                <select class="form-select" name="category">
+                                    <option value="all" <?php echo $category === 'all' ? 'selected' : ''; ?>>Semua Kategori</option>
+                                    <option value="website" <?php echo $category === 'website' ? 'selected' : ''; ?>>Website</option>
+                                    <option value="logo" <?php echo $category === 'logo' ? 'selected' : ''; ?>>Logo</option>
+                                    <option value="social_media" <?php echo $category === 'social_media' ? 'selected' : ''; ?>>Social Media</option>
+                                    <option value="video" <?php echo $category === 'video' ? 'selected' : ''; ?>>Video</option>
+                                    <option value="content" <?php echo $category === 'content' ? 'selected' : ''; ?>>Content</option>
+                                    <option value="marketing" <?php echo $category === 'marketing' ? 'selected' : ''; ?>>Marketing</option>
+                                    <option value="other" <?php echo $category === 'other' ? 'selected' : ''; ?>>Lainnya</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Budget -->
+                            <div class="mb-4">
+                                <label class="form-label">Rentang Budget</label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light">Rp</span>
+                                            <input type="number" class="form-control" name="budget_min" placeholder="Min" value="<?php echo $budget_min; ?>">
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light">Rp</span>
+                                            <input type="number" class="form-control" name="budget_max" placeholder="Max" value="<?php echo $budget_max; ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Kategori Populer -->
+                            <div class="popular-categories">
+                                <h6>Kategori Populer</h6>
+                                <div class="category-checkbox">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="logo_design" name="popular_categories[]" value="logo_design">
+                                        <label class="form-check-label" for="logo_design">Logo Design</label>
+                                    </div>
+                                </div>
+                                <div class="category-checkbox">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="website_design" name="popular_categories[]" value="website_design">
+                                        <label class="form-check-label" for="website_design">Website Design</label>
+                                    </div>
+                                </div>
+                                <div class="category-checkbox">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="social_media_design" name="popular_categories[]" value="social_media_design">
+                                        <label class="form-check-label" for="social_media_design">Social Media Design</label>
+                                    </div>
+                                </div>
+                                <div class="category-checkbox">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="uiux_design" name="popular_categories[]" value="uiux_design">
+                                        <label class="form-check-label" for="uiux_design">UI/UX Design</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <button type="submit" class="btn btn-primary w-100 mt-3">
+                                <i class="fas fa-filter me-1"></i> Terapkan Filter
+                            </button>
+                            
+                            <?php if (!empty($query) || !empty($category) || $budget_min > 0 || $budget_max > 0): ?>
+                                <a href="find-projects.php" class="btn btn-outline-secondary w-100 mt-2">
+                                    <i class="fas fa-times me-1"></i>Reset Filter
+                                </a>
+                            <?php endif; ?>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Projects List -->
+                <div class="col-lg-9">
+                    <div class="project-list">
+                        <!-- Results Header -->
+                        <div class="results-header">
+                            <div class="results-count"><?php echo count($projects); ?> Proyek Ditemukan</div>
+                            <div class="text-muted">
+                                <span>Urutkan:</span>
+                                <select class="sort-select ms-2">
+                                    <option>Terbaru</option>
+                                    <option>Budget Tertinggi</option>
+                                    <option>Deadline Terdekat</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Projects List -->
+                        <?php if (count($projects) > 0): ?>
+                            <?php foreach ($projects as $project): ?>
+                                <div class="project-card fade-in">
+                                    <div class="project-header">
+                                        <div class="project-header-left">
+                                            <!-- Category -->
                                             <span class="project-category">
                                                 <?php 
                                                 $category_icons = [
@@ -420,162 +830,179 @@ try {
                                                 echo isset($category_names[$project['category']]) ? $category_names[$project['category']] : 'Lainnya';
                                                 ?>
                                             </span>
-                                            <h5 class="card-title text-dark mb-1"><?php echo htmlspecialchars($project['title']); ?></h5>
+                                            
+                                            <!-- Title -->
+                                            <h3 class="project-title"><?php echo htmlspecialchars($project['title']); ?></h3>
                                         </div>
-                                        <?php if ($project['budget_range_min'] || $project['budget_range_max']): ?>
-                                            <span class="budget-badge">
-                                                <?php if ($project['budget_range_min'] && $project['budget_range_max']): ?>
-                                                    Rp <?php echo number_format($project['budget_range_min'], 0, ',', '.'); ?> - 
-                                                    Rp <?php echo number_format($project['budget_range_max'], 0, ',', '.'); ?>
-                                                <?php elseif ($project['budget_range_min']): ?>
-                                                    Mulai Rp <?php echo number_format($project['budget_range_min'], 0, ',', '.'); ?>
+                                        
+                                        <!-- Save Button -->
+                                        <form method="POST" action="" class="save-project-form">
+                                            <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+                                            <?php if ($project['is_saved'] > 0): ?>
+                                                <input type="hidden" name="action" value="unsave_project">
+                                                <button type="submit" class="btn btn-outline-primary btn-sm save-btn saved">
+                                                    <i class="fas fa-bookmark me-1"></i> Disimpan
+                                                </button>
+                                            <?php else: ?>
+                                                <input type="hidden" name="action" value="save_project">
+                                                <button type="submit" class="btn btn-outline-secondary btn-sm save-btn">
+                                                    <i class="far fa-bookmark me-1"></i> Simpan
+                                                </button>
+                                            <?php endif; ?>
+                                        </form>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <!-- Description -->
+                                            <p class="project-description">
+                                                <?php 
+                                                $description = $project['description'] ?? '';
+                                                echo htmlspecialchars(mb_strlen($description) > 200 ? mb_substr($description, 0, 200) . '...' : $description); 
+                                                ?>
+                                            </p>
+                                            
+                                            <!-- Skills -->
+                                            <?php if (!empty($project['required_skills'])): ?>
+                                                <div class="mb-3">
+                                                    <?php 
+                                                    $skills = json_decode($project['required_skills'], true);
+                                                    if (is_array($skills) && count($skills) > 0):
+                                                        foreach (array_slice($skills, 0, 5) as $skill):
+                                                    ?>
+                                                        <span class="skill-tag"><?php echo htmlspecialchars($skill); ?></span>
+                                                    <?php 
+                                                        endforeach;
+                                                        if (count($skills) > 5): 
+                                                    ?>
+                                                        <span class="skill-tag">+<?php echo count($skills) - 5; ?> lainnya</span>
+                                                    <?php endif; ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            
+                                            <!-- UMKM Info -->
+                                            <div class="umkm-info">
+                                                <?php if (!empty($project['business_logo_url'])): ?>
+                                                    <img src="<?php echo htmlspecialchars($project['business_logo_url']); ?>" alt="Logo UMKM" class="umkm-avatar">
                                                 <?php else: ?>
-                                                    Harga negotiable
+                                                    <div class="umkm-avatar bg-light d-flex align-items-center justify-content-center">
+                                                        <i class="fas fa-store text-muted"></i>
+                                                    </div>
                                                 <?php endif; ?>
-                                            </span>
-                                        <?php endif; ?>
-                                    </div>
-                                    
-                                    <!-- Project Description -->
-                                    <p class="card-text text-muted flex-grow-1">
-                                        <?php 
-                                        $description = $project['description'] ?? '';
-                                        echo htmlspecialchars(mb_strlen($description) > 150 ? mb_substr($description, 0, 150) . '...' : $description); 
-                                        ?>
-                                    </p>
-                                    
-                                    <!-- Required Skills -->
-                                    <?php if (!empty($project['required_skills'])): ?>
-                                        <div class="mb-3">
-                                            <?php 
-                                            $skills = json_decode($project['required_skills'], true);
-                                            if (is_array($skills) && count($skills) > 0):
-                                                foreach (array_slice($skills, 0, 5) as $skill): // Limit to 5 skills
-                                            ?>
-                                                <span class="skill-tag"><?php echo htmlspecialchars($skill); ?></span>
-                                            <?php 
-                                                endforeach;
-                                                if (count($skills) > 5): 
-                                            ?>
-                                                <span class="skill-tag">+<?php echo count($skills) - 5; ?> lainnya</span>
-                                            <?php endif; ?>
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php endif; ?>
-                                    
-                                    <!-- UMKM Info -->
-                                    <div class="d-flex align-items-center mb-3">
-                                        <?php if (!empty($project['business_logo_url'])): ?>
-                                            <img src="<?php echo htmlspecialchars($project['business_logo_url']); ?>" alt="Logo UMKM" class="umkm-avatar me-2">
-                                        <?php else: ?>
-                                            <div class="umkm-avatar bg-light d-flex align-items-center justify-content-center me-2">
-                                                <i class="fas fa-store text-muted"></i>
+                                                <div class="umkm-details">
+                                                    <h6><?php echo htmlspecialchars($project['business_name'] ?? $project['umkm_name'] ?? 'Unknown'); ?></h6>
+                                                    <p>
+                                                        <?php 
+                                                        $business_type = $project['business_type'] ?? '';
+                                                        if ($business_type) {
+                                                            $business_types = [
+                                                                'food' => 'Makanan & Minuman',
+                                                                'fashion' => 'Fashion',
+                                                                'craft' => 'Kerajinan',
+                                                                'service' => 'Jasa',
+                                                                'retail' => 'Retail',
+                                                                'other' => 'Lainnya'
+                                                            ];
+                                                            echo isset($business_types[$business_type]) ? $business_types[$business_type] : 'UMKM';
+                                                        } else {
+                                                            echo 'UMKM';
+                                                        }
+                                                        ?>
+                                                    </p>
+                                                </div>
                                             </div>
-                                        <?php endif; ?>
-                                        <div>
-                                            <p class="mb-0 fw-bold"><?php echo htmlspecialchars($project['business_name'] ?? $project['umkm_name'] ?? 'Unknown'); ?></p>
-                                            <small class="text-muted">
-                                                <?php 
-                                                $business_type = $project['business_type'] ?? '';
-                                                if ($business_type) {
-                                                    $business_types = [
-                                                        'food' => 'Makanan & Minuman',
-                                                        'fashion' => 'Fashion',
-                                                        'craft' => 'Kerajinan',
-                                                        'service' => 'Jasa',
-                                                        'retail' => 'Retail',
-                                                        'other' => 'Lainnya'
-                                                    ];
-                                                    echo isset($business_types[$business_type]) ? $business_types[$business_type] : 'UMKM';
-                                                } else {
-                                                    echo 'UMKM';
-                                                }
-                                                ?>
-                                            </small>
                                         </div>
-                                    </div>
-                                    
-                                    <!-- Project Meta -->
-                                    <div class="project-meta">
-                                        <div class="proposal-count">
-                                            <i class="fas fa-paper-plane me-1"></i>
-                                            <?php echo $project['proposal_count'] ?? 0; ?> proposal
+                                        
+                                        <div class="col-md-4">
+                                            <div class="project-meta">
+                                                <!-- Budget & Deadline -->
+                                                <div class="mb-3">
+                                                    <?php if ($project['budget_range_min'] || $project['budget_range_max']): ?>
+                                                        <div class="budget-badge">
+                                                            <?php if ($project['budget_range_min'] && $project['budget_range_max']): ?>
+                                                                Rp <?php echo number_format($project['budget_range_min'], 0, ',', '.'); ?> - 
+                                                                Rp <?php echo number_format($project['budget_range_max'], 0, ',', '.'); ?>
+                                                            <?php elseif ($project['budget_range_min']): ?>
+                                                                Mulai Rp <?php echo number_format($project['budget_range_min'], 0, ',', '.'); ?>
+                                                            <?php else: ?>
+                                                                Harga negotiable
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    
+                                                    <?php if (!empty($project['deadline'])): ?>
+                                                        <div class="deadline-badge">
+                                                            <i class="fas fa-clock me-1"></i>
+                                                            <?php 
+                                                            try {
+                                                                $deadline = new DateTime($project['deadline']);
+                                                                $now = new DateTime();
+                                                                $interval = $now->diff($deadline);
+                                                                if ($deadline > $now) {
+                                                                    echo $interval->days . " hari lagi";
+                                                                } else {
+                                                                    echo "Tenggat waktu terlewat";
+                                                                }
+                                                            } catch (Exception $e) {
+                                                                echo "Tanggal tidak valid";
+                                                            }
+                                                            ?>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                                
+                                                <!-- Proposal Count -->
+                                                <div class="proposal-count">
+                                                    <i class="fas fa-paper-plane me-1"></i>
+                                                    <?php echo $project['proposal_count'] ?? 0; ?> proposal
+                                                </div>
+                                                
+                                                <!-- Action Button -->
+                                                <div class="mt-auto">
+                                                    <?php if (($project['already_applied'] ?? 0) > 0): ?>
+                                                        <div class="applied-badge">
+                                                            <i class="fas fa-check me-1"></i>Sudah Diajukan
+                                                        </div>
+                                                        <a href="view-project1.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-primary w-100">
+                                                            Lihat Detail
+                                                        </a>
+                                                    <?php else: ?>
+                                                        <a href="view-project1.php?id=<?php echo $project['id']; ?>" class="apply-button">
+                                                            Ajukan Proposal <i class="fas fa-arrow-right ms-2"></i>
+                                                        </a>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <?php if (!empty($project['deadline'])): ?>
-                                            <div class="deadline-badge">
-                                                <i class="fas fa-clock me-1"></i>
-                                                <?php 
-                                                try {
-                                                    $deadline = new DateTime($project['deadline']);
-                                                    $now = new DateTime();
-                                                    $interval = $now->diff($deadline);
-                                                    if ($deadline > $now) {
-                                                        echo $interval->days . " hari lagi";
-                                                    } else {
-                                                        echo "Tenggat waktu terlewat";
-                                                    }
-                                                } catch (Exception $e) {
-                                                    echo "Tanggal tidak valid";
-                                                }
-                                                ?>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    
-                                    <!-- Action Button -->
-                                    <div class="mt-auto pt-3">
-                                        <?php if (($project['already_applied'] ?? 0) > 0): ?>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="badge bg-success p-2"><i class="fas fa-check me-1"></i>Sudah Diajukan</span>
-                                                <a href="view-project.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-primary btn-sm">Lihat Detail</a>
-                                            </div>
-                                        <?php else: ?>
-                                            <a href="view-project.php?id=<?php echo $project['id']; ?>" class="btn apply-button w-100">
-                                                Ajukan Proposal <i class="fas fa-arrow-right ms-2"></i>
-                                            </a>
-                                        <?php endif; ?>
                                     </div>
                                 </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="project-card text-center">
+                                <div class="empty-state py-5">
+                                    <i class="fas fa-search"></i>
+                                    <h3 class="mt-3">Tidak ada proyek ditemukan</h3>
+                                    <p class="mb-4">Coba ubah kata kunci atau filter pencarian Anda</p>
+                                    <a href="find-projects.php" class="btn btn-primary">
+                                        <i class="fas fa-refresh me-2"></i>Reset Pencarian
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="col-12">
-                        <div class="empty-state">
-                            <i class="fas fa-search"></i>
-                            <h3 class="mt-3">Maaf, hasil pencarian tidak ditemukan</h3>
-                            <p class="mb-4">Coba ubah kata kunci atau filter pencarian Anda</p>
-                            <a href="find-projects.php" class="btn btn-primary">
-                                <i class="fas fa-refresh me-2"></i>Reset Pencarian
-                            </a>
-                        </div>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
+                </div>
             </div>
-            
-            <!-- Pagination (if needed in the future) -->
-            <!--
-            <nav aria-label="Project pagination" class="mt-5">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                    </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#">Next</a>
-                    </li>
-                </ul>
-            </nav>
-            -->
         </div>
     </div>
     
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Highlight active filters
         document.addEventListener('DOMContentLoaded', function() {
+            // Highlight active filters
             const urlParams = new URLSearchParams(window.location.search);
             const hasFilters = urlParams.has('query') || 
                               (urlParams.has('category') && urlParams.get('category') !== 'all') ||
@@ -585,23 +1012,134 @@ try {
             if (hasFilters) {
                 const filterToggle = document.querySelector('.filter-toggle');
                 if (filterToggle) {
-                    filterToggle.classList.add('btn-success');
+                    filterToggle.classList.add('filter-active');
                     filterToggle.innerHTML = '<i class="fas fa-filter me-2"></i>Filter Aktif';
                 }
             }
             
-            // Add animation to cards on load
-            const cards = document.querySelectorAll('.project-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                
+            // Add animation to project items
+            const items = document.querySelectorAll('.fade-in');
+            items.forEach((item, index) => {
                 setTimeout(() => {
-                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
+                    item.classList.add('visible');
                 }, index * 100);
             });
+            
+            // AJAX untuk save/unsave project
+            const saveForms = document.querySelectorAll('.save-project-form');
+            saveForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const button = this.querySelector('button');
+                    const originalText = button.innerHTML;
+                    
+                    // Tampilkan loading
+                    button.innerHTML = '<span class="loading-spinner" style="width: 12px; height: 12px; border-width: 2px;"></span>';
+                    button.disabled = true;
+                    
+                    fetch('find-projects.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(() => {
+                        // Toggle button state
+                        const isSaved = button.classList.contains('saved');
+                        
+                        if (isSaved) {
+                            // Change to unsaved state
+                            button.classList.remove('saved', 'btn-outline-primary');
+                            button.classList.add('btn-outline-secondary');
+                            button.innerHTML = '<i class="far fa-bookmark me-1"></i> Simpan';
+                            form.querySelector('input[name="action"]').value = 'save_project';
+                            showToast('Proyek dihapus dari daftar disimpan', 'info');
+                        } else {
+                            // Change to saved state
+                            button.classList.add('saved', 'btn-outline-primary');
+                            button.classList.remove('btn-outline-secondary');
+                            button.innerHTML = '<i class="fas fa-bookmark me-1"></i> Disimpan';
+                            form.querySelector('input[name="action"]').value = 'unsave_project';
+                            showToast('Proyek disimpan ke daftar Anda', 'success');
+                        }
+                        
+                        button.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                        showToast('Terjadi kesalahan', 'danger');
+                    });
+                });
+            });
+            
+            // Enhanced interactions for apply buttons
+            const applyButtons = document.querySelectorAll('.apply-button');
+            applyButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Remove the loading simulation for real navigation
+                    // This will now navigate to view-project1.php
+                });
+            });
+            
+            // Sort functionality
+            const sortSelect = document.querySelector('.sort-select');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', function() {
+                    // Show loading state
+                    const projectList = document.querySelector('.project-list');
+                    projectList.style.opacity = '0.7';
+                    
+                    setTimeout(() => {
+                        projectList.style.opacity = '1';
+                        // Show a toast notification
+                        showToast('Proyek diurutkan berdasarkan: ' + this.value, 'info');
+                    }, 800);
+                });
+            }
+            
+            // Toast notification function
+            function showToast(message, type = 'info') {
+                const toastContainer = document.getElementById('toastContainer');
+                
+                // Create toast element
+                const toast = document.createElement('div');
+                toast.className = `alert alert-${type === 'success' ? 'success' : type === 'danger' ? 'danger' : 'info'} alert-dismissible fade show custom-toast`;
+                toast.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'danger' ? 'fa-exclamation-circle' : 'fa-info-circle'} me-2"></i>
+                        <div>${message}</div>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                
+                toastContainer.appendChild(toast);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 5000);
+            }
+            
+            // Mobile filter toggle enhancement
+            const filterToggle = document.querySelector('.filter-toggle');
+            const filterCollapse = document.getElementById('filterCollapse');
+            
+            if (filterToggle && filterCollapse) {
+                filterToggle.addEventListener('click', function() {
+                    const isExpanded = filterCollapse.classList.contains('show');
+                    
+                    if (isExpanded) {
+                        this.innerHTML = '<i class="fas fa-filter me-2"></i>Filter Pencarian';
+                    } else {
+                        this.innerHTML = '<i class="fas fa-times me-2"></i>Tutup Filter';
+                    }
+                });
+            }
         });
     </script>
 </body>
