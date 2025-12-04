@@ -485,7 +485,7 @@ $recent_notifications = $notificationManager->getUserNotifications($_SESSION['us
                             </a>
                         </li>
                         <li class="nav-item-konekin">
-                            <a class="nav-link-konekin" href="projects.php">
+                            <a class="nav-link-konekin" href="all-projects.php">
                                 <i class="fas fa-tasks me-1"></i>
                                 <span>Proyek Saya</span>
                             </a>
