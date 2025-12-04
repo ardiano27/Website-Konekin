@@ -970,8 +970,8 @@ try {
                                 <i class="fas fa-envelope text-muted me-3"></i>
                                 <small><?php echo htmlspecialchars($project['umkm_email']); ?></small>
                             </div>
-                            <a href="project-messages.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-primary btn-sm w-100">
-                                <i class="fas fa-comments me-2"></i>Kirim Pesan
+                            <a href="messages.php?user_id=<?php echo $project['umkm_user_id']; ?>" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="fas fa-comments me-2"></i>Chat UMKM
                             </a>
                         </div>
                     </div>

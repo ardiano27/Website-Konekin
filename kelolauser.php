@@ -9,7 +9,6 @@ if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
 require_once 'includes/config/database-chart.php';
 require_once __DIR__ . '/config/Database.php';
 
-
 try {
     $database = new DatabaseConnection();
     $pdo = $database->getConnection();
@@ -27,8 +26,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'];
         
         try {
-            $stmt = $pdo->prepare("UPDATE users SET is_active = ? WHERE id = ?");
-            $stmt->execute([$action === 'activate' ? 1 : 0, $user_id]);
+            if ($action === 'deactivate') {
+                $stmt = $pdo->prepare("UPDATE users SET is_active = 0, deactivated_at = NOW() WHERE id = ?");
+                $stmt->execute([$user_id]);
+            } else {
+                $stmt = $pdo->prepare("UPDATE users SET is_active = 1, deactivated_at = NULL WHERE id = ?");
+                $stmt->execute([$user_id]);
+            }
+            
             $_SESSION['success_message'] = "User berhasil " . ($action === 'activate' ? 'diaktifkan' : 'dinonaktifkan');
         } catch (Exception $e) {
             $_SESSION['error_message'] = "Gagal mengubah status user: " . $e->getMessage();
@@ -79,25 +84,88 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'get_user_detail' && isset($_GET['
             }
         }
         
-        // Get user projects - PERBAIKAN: multiple column尝试
+        // Get user projects - Mencari di semua tabel yang berkaitan dengan user
         $projects = [];
-        $project_columns = ['user_id', 'owner_id', 'creator_id', 'client_id'];
+
+        // 1. Cari proyek sebagai owner/creator/client di tabel projects
+        $project_columns = ['owner_id', 'creator_id', 'client_id'];
         foreach ($project_columns as $column) {
             try {
                 $projectStmt = $pdo->prepare("
-                    SELECT title, status, created_at 
-                    FROM projects 
-                    WHERE $column = ?
-                    ORDER BY created_at DESC 
+                    SELECT p.* 
+                    FROM projects p
+                    WHERE p.$column = ?
+                    ORDER BY p.created_at DESC 
                     LIMIT 5
                 ");
                 $projectStmt->execute([$user_id]);
-                $projects = $projectStmt->fetchAll(PDO::FETCH_ASSOC);
-                if (!empty($projects)) break;
+                $found = $projectStmt->fetchAll(PDO::FETCH_ASSOC);
+                if (!empty($found)) {
+                    $projects = array_merge($projects, $found);
+                }
             } catch (Exception $e) {
                 continue;
             }
         }
+
+        // 2. Cari proyek yang diapply di tabel project_applications
+        try {
+            $applyStmt = $pdo->prepare("
+                SELECT p.*, pa.status as application_status
+                FROM project_applications pa
+                JOIN projects p ON pa.project_id = p.id
+                WHERE pa.user_id = ?
+                ORDER BY pa.applied_at DESC
+                LIMIT 5
+            ");
+            $applyStmt->execute([$user_id]);
+            $applied = $applyStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Tambahkan marker bahwa ini adalah proyek yang diapply
+            foreach ($applied as &$app) {
+                $app['is_applied'] = true;
+            }
+            
+            $projects = array_merge($projects, $applied);
+        } catch (Exception $e) {
+            // Table mungkin tidak ada, skip saja
+        }
+
+        // 3. Cari proyek yang dikerjakan di tabel project_members
+        try {
+            $memberStmt = $pdo->prepare("
+                SELECT p.*, pm.role as member_role
+                FROM project_members pm
+                JOIN projects p ON pm.project_id = p.id
+                WHERE pm.user_id = ?
+                ORDER BY pm.joined_at DESC
+                LIMIT 5
+            ");
+            $memberStmt->execute([$user_id]);
+            $memberOf = $memberStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Tambahkan marker bahwa ini adalah proyek sebagai member
+            foreach ($memberOf as &$member) {
+                $member['is_member'] = true;
+            }
+            
+            $projects = array_merge($projects, $memberOf);
+        } catch (Exception $e) {
+            // Table mungkin tidak ada, skip saja
+        }
+
+        // Batasi hanya 5 proyek dan hilangkan duplikat
+        $unique_projects = [];
+        $project_ids = [];
+
+        foreach ($projects as $project) {
+            if (!in_array($project['id'], $project_ids) && count($unique_projects) < 5) {
+                $project_ids[] = $project['id'];
+                $unique_projects[] = $project;
+            }
+        }
+
+        $projects = $unique_projects;
         
         ?>
         <div class="row">
@@ -124,6 +192,23 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'get_user_detail' && isset($_GET['
                         <h6>Informasi Akun</h6>
                         <p class="mb-1"><small>Bergabung: <?= date('d M Y', strtotime($user['created_at'] ?? 'now')) ?></small></p>
                         <p class="mb-0"><small>Username: <?= htmlspecialchars($user['username'] ?? 'No Username') ?></small></p>
+                    </div>
+                </div>
+
+                <!-- Tambah informasi status akun -->
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6>Status Akun</h6>
+                        <?php if ($user['is_active']): ?>
+                            <p class="text-success mb-1"><i class="fas fa-check-circle me-2"></i>Akun Aktif</p>
+                            <p class="text-muted small mb-0">User dapat login ke sistem</p>
+                        <?php else: ?>
+                            <p class="text-danger mb-1"><i class="fas fa-ban me-2"></i>Akun Dinonaktifkan</p>
+                            <p class="text-muted small mb-0">User tidak dapat login ke sistem</p>
+                            <?php if (!empty($user['deactivated_at'])): ?>
+                                <p class="text-muted small mb-0">Dinonaktifkan pada: <?= date('d M Y H:i', strtotime($user['deactivated_at'])) ?></p>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -166,25 +251,52 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'get_user_detail' && isset($_GET['
                     </div>
                 <?php endif; ?>
                 
+                <!-- Bagian Proyek Terkait (Updated) -->
                 <div class="card">
                     <div class="card-header">
-                        <h6>Proyek Terbaru</h6>
+                        <h6>Proyek Terkait</h6>
                     </div>
                     <div class="card-body">
                         <?php if (!empty($projects)): ?>
                             <?php foreach ($projects as $project): ?>
                                 <div class="project-card">
                                     <h6 class="mb-1"><?= htmlspecialchars($project['title'] ?? 'No Title') ?></h6>
-                                    <p class="mb-1 text-muted small">Status: 
-                                        <span class="badge <?= ($project['status'] ?? '') === 'completed' ? 'bg-success' : (($project['status'] ?? '') === 'in_progress' ? 'bg-warning' : 'bg-info') ?>">
+                                    
+                                    <!-- Tampilkan peran user dalam proyek -->
+                                    <?php if (isset($project['is_applied'])): ?>
+                                        <span class="badge bg-info badge-sm">Diapply</span>
+                                    <?php elseif (isset($project['is_member'])): ?>
+                                        <span class="badge bg-primary badge-sm"><?= htmlspecialchars($project['member_role'] ?? 'Member') ?></span>
+                                    <?php elseif ($project['owner_id'] == $user_id): ?>
+                                        <span class="badge bg-success badge-sm">Pemilik</span>
+                                    <?php elseif ($project['creator_id'] == $user_id): ?>
+                                        <span class="badge bg-warning badge-sm">Creator</span>
+                                    <?php elseif ($project['client_id'] == $user_id): ?>
+                                        <span class="badge bg-secondary badge-sm">Klien</span>
+                                    <?php endif; ?>
+                                    
+                                    <p class="mb-1 text-muted small mt-2">Status Proyek: 
+                                        <span class="badge <?= ($project['status'] ?? '') === 'completed' ? 'bg-success' : 
+                                                            (($project['status'] ?? '') === 'in_progress' ? 'bg-warning' : 
+                                                            (($project['status'] ?? '') === 'pending' ? 'bg-info' : 'bg-secondary')) ?>">
                                             <?= ucfirst(str_replace('_', ' ', $project['status'] ?? 'unknown')) ?>
                                         </span>
                                     </p>
+                                    
+                                    <?php if (isset($project['application_status'])): ?>
+                                        <p class="mb-1 text-muted small">Status Apply: 
+                                            <span class="badge <?= ($project['application_status'] ?? '') === 'accepted' ? 'bg-success' : 
+                                                                (($project['application_status'] ?? '') === 'rejected' ? 'bg-danger' : 'bg-warning') ?>">
+                                                <?= ucfirst($project['application_status'] ?? 'pending') ?>
+                                            </span>
+                                        </p>
+                                    <?php endif; ?>
+                                    
                                     <p class="mb-0 text-muted small">Dibuat: <?= date('d M Y', strtotime($project['created_at'] ?? 'now')) ?></p>
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p class="text-muted">Belum ada proyek</p>
+                            <p class="text-muted">Belum terlibat dalam proyek</p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -198,12 +310,12 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'get_user_detail' && isset($_GET['
     }
 }
 
-// Get filter parameters for main page - PERBAIKAN: tambah trim()
+// Get filter parameters for main page
 $type_filter = $_GET['type'] ?? '';
 $status_filter = $_GET['status'] ?? '';
 $search = trim($_GET['search'] ?? '');
 
-// Build query - PERBAIKAN: Search yang lebih komprehensif
+// Build query
 $sql = "SELECT * FROM users WHERE 1=1";
 $params = [];
 
@@ -224,7 +336,6 @@ if (!empty($status_filter)) {
     }
 }
 
-// PERBAIKAN: Search dengan OR condition yang benar
 if (!empty($search)) {
     $sql .= " AND (";
     $sql .= "full_name LIKE ? OR ";
@@ -660,6 +771,13 @@ $umkm_users = array_filter($users, function($user) {
             font-size: 3rem;
             margin-bottom: 15px;
             opacity: 0.5;
+        }
+
+        /* Tambahan untuk badge kecil */
+        .badge-sm {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 12px;
         }
     </style>
 </head>

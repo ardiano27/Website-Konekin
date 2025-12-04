@@ -273,7 +273,8 @@ $proposal_status_badges = [
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <h1 class="mb-2"><i class="fas fa-briefcase me-2"></i>Detail Proyek</h1>
-                        <p class="mb-0">Informasi lengkap tentang proyek <?php echo htmlspecialchars($project['title']); ?></p>
+                        <p class="mb-0">Informasi lengkap tentang proyek 
+                            <?php echo htmlspecialchars($project['title']); ?></p>
                     </div>
                     <div class="col-md-4 text-md-end">
                         <a href="find-projects.php" class="btn btn-light me-2">
@@ -515,9 +516,9 @@ $proposal_status_badges = [
                                                 <i class="fas fa-tasks me-1"></i>Update Progress
                                             </a>
                                         <?php endif; ?>
-                                        <a href="project-messages.php?id=<?php echo $project_id; ?>" class="btn btn-outline-primary">
-                                            <i class="fas fa-comments me-1"></i>Chat UMKM
-                                        </a>
+                                        <a href="messages.php?user_id=<?php echo $project['umkm_user_id']; ?>" class="btn btn-outline-primary">
+                                     <i class="fas fa-comments me-2"></i>Chat UMKM
+                                      </a>
                                         <?php if ($project['contract_status'] === 'active' && $project['progress_percentage'] >= 100 && $project['payment_status'] === 'paid'): ?>
                                             <a href="submit-work.php?contract_id=<?php echo $project['contract_id']; ?>" class="btn btn-success">
                                                 <i class="fas fa-paper-plane me-1"></i>Submit Hasil Akhir
@@ -575,10 +576,9 @@ $proposal_status_badges = [
                         </div>
                         
                         <div class="action-buttons">
-                            <a href="send-message.php?to=<?php echo $project['umkm_user_id']; ?>&project=<?php echo $project_id; ?>" 
-                               class="btn btn-primary btn-sm">
-                                <i class="fas fa-envelope me-1"></i>Kirim Pesan
-                            </a>
+                            <a href="messages.php?user_id=<?php echo $project['umkm_user_id']; ?>" class="btn btn-outline-primary">
+                             <i class="fas fa-comments me-2"></i>Chat UMKM
+                                </a>
                         </div>
                     </div>
 
@@ -596,8 +596,8 @@ $proposal_status_badges = [
                             <?php endif; ?>
                             
                             <?php if ($project['contract_id']): ?>
-                                <a href="project-messages.php?id=<?php echo $project_id; ?>" class="btn btn-outline-primary">
-                                    <i class="fas fa-comments me-2"></i>Chat UMKM
+                               <a href="messages.php?user_id=<?php echo $project['umkm_user_id']; ?>" class="btn btn-outline-primary">
+                             <i class="fas fa-comments me-2"></i>Chat UMKM
                                 </a>
                                 <a href="contract-details.php?id=<?php echo $project['contract_id']; ?>" class="btn btn-outline-primary">
                                     <i class="fas fa-file-contract me-2"></i>Lihat Kontrak

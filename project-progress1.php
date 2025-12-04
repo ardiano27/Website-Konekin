@@ -111,44 +111,45 @@ try {
     $stmt->execute([':contract_id' => $contract_id]);
     $progress_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
 // Handle form submission
 $success_message = '';
 $error_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $progress_percentage = $_POST['progress_percentage'] ?? 0;
-    $description = $_POST['description'] ?? '';
+    $progress_percentage = (int) ($_POST['progress_percentage'] ?? 0);
+    $description = trim($_POST['description'] ?? '');
     $attachments = $_FILES['attachments'] ?? [];
     
     // Validasi
+    $current_progress = (int) $project['progress_percentage'];
+    
     if ($progress_percentage < 0 || $progress_percentage > 100) {
         $error_message = "Progress harus antara 0-100%";
-    } elseif ($progress_percentage < $project['progress_percentage']) {
-        $error_message = "Progress tidak boleh lebih kecil dari progress sebelumnya";
+    } elseif ($progress_percentage < $current_progress) {
+        $error_message = "Progress tidak boleh lebih kecil dari progress sebelumnya ($current_progress%)";
     } else {
-        try {
-            $conn->beginTransaction();
+        // Upload attachments
+        $attachment_urls = [];
+        if (!empty($attachments['name'][0]) && $attachments['name'][0] != '') {
+            $upload_dir = 'uploads/progress/' . $contract_id . '/';
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
             
-            // Upload attachments
-            $attachment_urls = [];
-            if (!empty($attachments['name'][0])) {
-                $upload_dir = 'uploads/progress/' . $contract_id . '/';
-                if (!file_exists($upload_dir)) {
-                    mkdir($upload_dir, 0777, true);
-                }
-                
-                for ($i = 0; $i < count($attachments['name']); $i++) {
-                    if ($attachments['error'][$i] === UPLOAD_ERR_OK) {
-                        $file_name = time() . '_' . basename($attachments['name'][$i]);
-                        $file_path = $upload_dir . $file_name;
-                        
-                        if (move_uploaded_file($attachments['tmp_name'][$i], $file_path)) {
-                            $attachment_urls[] = $file_path;
-                        }
+            for ($i = 0; $i < count($attachments['name']); $i++) {
+                if ($attachments['error'][$i] === UPLOAD_ERR_OK && $attachments['name'][$i] != '') {
+                    $file_name = time() . '_' . uniqid() . '_' . basename($attachments['name'][$i]);
+                    $file_path = $upload_dir . $file_name;
+                    
+                    if (move_uploaded_file($attachments['tmp_name'][$i], $file_path)) {
+                        $attachment_urls[] = $file_path;
                     }
                 }
             }
-            
+        }
+        
+        try {
             // Insert progress update
             $insert_sql = "
                 INSERT INTO contract_progress 
@@ -194,8 +195,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':contract_id' => $contract_id
             ]);
             
-            $conn->commit();
-            
             // Refresh project data
             $stmt = $conn->prepare($sql);
             $stmt->execute([
@@ -206,15 +205,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Refresh progress history
             $stmt = $conn->prepare($progress_history_sql);
-            $stmt->execute([':contract_id' => $contract_id]);
+            $stmt->execute([
+                ':contract_id' => $contract_id,
+                ':contract_id2' => $contract_id,
+                ':user_id' => $_SESSION['user_id']
+            ]);
             $progress_history = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            $success_message = "Progress berhasil diupdate!";
+            $success_message = "Progress berhasil diupdate dari $current_progress% menjadi $progress_percentage%!";
             
         } catch (PDOException $e) {
-            $conn->rollBack();
             $error_message = "Terjadi kesalahan: " . $e->getMessage();
-            error_log("Error updating progress: " . $e->getMessage());
+            error_log("Database error updating progress: " . $e->getMessage());
+            
+            // Cek jika progress sudah terupdate
+            $check_sql = "SELECT progress_percentage FROM contracts WHERE id = :contract_id";
+            $stmt = $conn->prepare($check_sql);
+            $stmt->execute([':contract_id' => $contract_id]);
+            $check_result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($check_result && $check_result['progress_percentage'] == $progress_percentage) {
+                $success_message = "Progress berhasil diupdate, tetapi ada error pada sistem notifikasi.";
+                $error_message = ''; // Reset error message jika progress sudah terupdate
+            }
+        } catch (Exception $e) {
+            // Handle non-PDO exceptions
+            $error_message = "Terjadi kesalahan sistem: " . $e->getMessage();
+            error_log("General error updating progress: " . $e->getMessage());
         }
     }
 }
@@ -434,7 +451,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                           id="description" 
                                           name="description" 
                                           rows="4" 
-                                          placeholder="Jelaskan apa yang sudah dikerjakan, pencapaian, atau kendala yang dihadapi..."></textarea>
+                                          placeholder="Jelaskan apa yang sudah dikerjakan, pencapaian, atau kendala yang dihadapi..."><?php echo isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
                                 <div class="form-text">Berikan penjelasan detail tentang progress yang telah dicapai.</div>
                             </div>
                             
@@ -655,9 +672,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="detail-card">
                         <h5 class="mb-3">Aksi Cepat</h5>
                         <div class="d-grid gap-2">
-                            <a href="project-messages.php?id=<?php echo $project['id']; ?>" class="btn btn-outline-primary">
-                                <i class="fas fa-comments me-2"></i>Chat UMKM
-                            </a>
+                           <a href="messages.php?user_id=<?php echo $project['umkm_user_id']; ?>" class="btn btn-outline-primary">
+                             <i class="fas fa-comments me-2"></i>Chat UMKM
+                                </a>
                             <a href="contract-details.php?id=<?php echo $contract_id; ?>" class="btn btn-outline-primary">
                                 <i class="fas fa-file-contract me-2"></i>Lihat Kontrak
                             </a>

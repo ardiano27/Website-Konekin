@@ -729,7 +729,7 @@ try {
                             <?php if (!empty($recent_projects)): ?>
                                 <div class="activity-list">
                                     <?php foreach ($recent_projects as $project): ?>
-                                        <div class="activity-list-item" onclick="window.location.href='project-detail.php?id=<?php echo $project['id']; ?>'">
+                                        <div class="activity-list-item" onclick="window.location.href='view-project.php?id=<?php echo $project['id']; ?>'">
                                             <div class="project-icon">
                                                 <?php 
                                                 $categoryIcon = match($project['category']) {
@@ -794,7 +794,7 @@ try {
                                     <h3 class="section-title">📨 Proposal Terbaru</h3>
                                     <p class="section-subtitle">Penawaran terbaru dari kreator</p>
                                 </div>
-                                <a href="proposals.php" class="btn btn-primary btn-sm rounded-pill px-3">
+                                <a href="project-proposals.php" class="btn btn-primary btn-sm rounded-pill px-3">
                                     <i class="fas fa-arrow-right me-1"></i> Lihat Semua
                                 </a>
                             </div>
@@ -805,7 +805,7 @@ try {
                                 <div class="proposal-list px-3">
                                     <?php foreach ($recent_proposals as $proposal): ?>
                                         <div class="proposal-item-card <?php echo $proposal['status'] === 'submitted' ? 'new' : ''; ?>" 
-                                             onclick="window.location.href='view-proposal.php?id=<?php echo $proposal['id']; ?>'">
+                                             onclick="window.location.href='project-proposals.php?id=<?php echo $proposal['id']; ?>'">
                                             <div class="d-flex align-items-start">
                                                 <!-- Avatar Kreator -->
                                                 <div class="creative-avatar <?php echo empty($proposal['creative_avatar']) ? 'fallback' : ''; ?>">

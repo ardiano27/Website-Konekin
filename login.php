@@ -12,7 +12,8 @@ if(isset($_POST["login"])){
     $password = $_POST["password"];
 
     try {
-        $sql = "SELECT * FROM users WHERE email = :email";
+        // **PERUBAHAN PENTING: Tambahkan kondisi is_active = 1**
+        $sql = "SELECT * FROM users WHERE email = :email AND is_active = 1";
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
@@ -40,7 +41,17 @@ if(isset($_POST["login"])){
                 $error = "Email atau password salah";
             }
         } else {
-            $error = "Email atau password salah";
+            // **Pesan error yang lebih spesifik untuk akun nonaktif**
+            $sql_check = "SELECT * FROM users WHERE email = :email AND is_active = 0";
+            $stmt_check = $conn->prepare($sql_check);
+            $stmt_check->bindParam(':email', $email);
+            $stmt_check->execute();
+            
+            if($stmt_check->rowCount() > 0){
+                $error = "Akun Anda dinonaktifkan. Silakan hubungi administrator.";
+            } else {
+                $error = "Email atau password salah";
+            }
         }
     } catch(PDOException $e) {
         $error = "Terjadi kesalahan: " . $e->getMessage();
@@ -92,6 +103,16 @@ if(isset($_GET['status']) && $_GET['status'] == 'registered'){
             font-weight: bold;
             color: var(--primary-color) !important;
         }
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -135,7 +156,16 @@ if(isset($_GET['status']) && $_GET['status'] == 'registered'){
                     <?php endif; ?>
                     
                     <?php if (!empty($error)): ?>
-                        <div class="alert alert-danger"><?= $error; ?></div>
+                        <div class="alert alert-danger">
+                            <?php 
+                            // Tampilkan pesan error dengan ikon yang berbeda
+                            if (strpos($error, 'dinonaktifkan') !== false): ?>
+                                <i class="fas fa-ban me-2"></i>
+                            <?php else: ?>
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                            <?php endif; ?>
+                            <?= $error; ?>
+                        </div>
                     <?php endif; ?>
 
                     <form method="POST" action="">
@@ -153,7 +183,7 @@ if(isset($_GET['status']) && $_GET['status'] == 'registered'){
                     </form>
 
                     <div class="text-center mt-3">
-                        <a href="#" class="text-primary">Lupa password?</a>
+                        <a href="forgot-password.php" class="text-primary">Lupa password?</a>
                     </div>
                 </div>
 
