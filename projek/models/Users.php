@@ -1,5 +1,6 @@
 <?php
-require_once "config/Database.php";
+// File: models/Users.php
+require_once __DIR__ . '/../config/Database.php';
 
 class User {
     private $conn;
@@ -8,8 +9,12 @@ class User {
     public function __construct() {
         $database = new DatabaseConnection();
         $this->conn = $database->getConnection();
+        if (!$this->conn) {
+            throw new Exception("Database connection failed in User model.");
+        }
     }
     
+    // Method untuk membuat user baru
     public function create($uuid, $email, $password_hash, $user_type, $full_name, $phone = null) {
         $sql = "INSERT INTO " . $this->table_name . " (uuid, email, password_hash, user_type, full_name, phone) 
                 VALUES (:uuid, :email, :password_hash, :user_type, :full_name, :phone)";
@@ -24,6 +29,7 @@ class User {
         ]);
     }
     
+    // Method untuk mendapatkan user berdasarkan email
     public function getByEmail($email) {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE email = :email";
         $stmt = $this->conn->prepare($sql);
@@ -31,6 +37,7 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // Method untuk mendapatkan user berdasarkan ID
     public function getById($id) {
         $sql = "SELECT * FROM " . $this->table_name . " WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
@@ -38,46 +45,9 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getByUUID($uuid) {
-        $sql = "SELECT * FROM " . $this->table_name . " WHERE uuid = :uuid";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute(['uuid' => $uuid]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    public function update($id, $full_name, $phone, $avatar_url = null) {
-        $sql = "UPDATE " . $this->table_name . " SET full_name = :full_name, phone = :phone";
-        $params = [
-            'id' => $id,
-            'full_name' => $full_name,
-            'phone' => $phone
-        ];
-        
-        if ($avatar_url) {
-            $sql .= ", avatar_url = :avatar_url";
-            $params['avatar_url'] = $avatar_url;
-        }
-        
-        $sql .= " WHERE id = :id";
-        
-        $stmt = $this->conn->prepare($sql);
-        return $stmt->execute($params);
-    }
-
-    public function verifyEmail($id) {
-        $sql = "UPDATE " . $this->table_name . " SET is_verified = 1 WHERE id = :id";
-        $stmt = $this->conn->prepare($sql);
-        return $stmt->execute(['id' => $id]);
-    }
-
-    public function deactivate($id) {
-        $sql = "UPDATE " . $this->table_name . " SET is_active = 0 WHERE id = :id";
-        $stmt = $this->conn->prepare($sql);
-        return $stmt->execute(['id' => $id]);
-    }
-
+    // Method untuk mendapatkan semua user (dengan pagination)
     public function getAll($limit = 10, $offset = 0) {
-        $sql = "SELECT * FROM " . $this->table_name . " WHERE is_active = 1 ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
+        $sql = "SELECT * FROM " . $this->table_name . " LIMIT :limit OFFSET :offset";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
@@ -85,7 +55,7 @@ class User {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
-
+    // Method untuk mendapatkan user beserta data profil (UMKM/Creative Worker)
     public function getWithProfile($id) {
         $user = $this->getById($id);
         
@@ -93,10 +63,15 @@ class User {
             return null;
         }
         
+        // Memeriksa tipe user untuk mengambil profil yang benar
         if ($user['user_type'] === 'umkm') {
             $sql = "SELECT up.* FROM umkm_profiles up WHERE up.user_id = :user_id";
-        } else {
+        } else if ($user['user_type'] === 'creative_worker') {
             $sql = "SELECT cp.* FROM creative_profiles cp WHERE cp.user_id = :user_id";
+        } else {
+            // Jika user_type tidak terdaftar
+            $user['profile'] = null;
+            return $user;
         }
         
         $stmt = $this->conn->prepare($sql);
@@ -112,14 +87,5 @@ class User {
         $stmt = $this->conn->prepare($sql);
         $stmt->execute(['email' => $email]);
         return $stmt->fetchColumn() > 0;
-    }
-
-    public function updatePassword($id, $new_password_hash) {
-        $sql = "UPDATE " . $this->table_name . " SET password_hash = :password_hash WHERE id = :id";
-        $stmt = $this->conn->prepare($sql);
-        return $stmt->execute([
-            'id' => $id,
-            'password_hash' => $new_password_hash
-        ]);
     }
 }

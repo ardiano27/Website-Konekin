@@ -1,0 +1,357 @@
+:root {
+    --primary: #4361ee;
+    --primary-dark: #3498db;
+    --secondary: #4cc9f0;
+    --bg-body: #f8f9fc;
+    --text-main: #2b2d42;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0; /* Border lebih jelas tapi soft */
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --radius-md: 16px;
+    --radius-sm: 10px;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+}
+
+.main-content {
+    margin-top: 20px;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+/* --- Header Section --- */
+.page-title {
+    font-weight: 800;
+    font-size: 1.85rem;
+    color: var(--text-main);
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5rem;
+}
+
+.btn-glow {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+    transition: all 0.3s ease;
+    border-radius: var(--radius-sm);
+    padding: 12px 24px;
+    font-weight: 600;
+    color: white;
+}
+
+.btn-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+    color: white;
+}
+
+/* --- Stats Cards --- */
+.stat-card {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 24px;
+    border: 1px solid var(--border-color); /* Border diperjelas */
+    box-shadow: var(--card-shadow);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.2s ease;
+    height: 100%;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: var(--hover-shadow);
+}
+
+.icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.bg-blue-soft { background: #eff6ff; color: #3b82f6; }
+.bg-warning-soft { background: #fffbeb; color: #f59e0b; }
+.bg-success-soft { background: #f0fdf4; color: #22c55e; }
+.bg-purple-soft { background: #faf5ff; color: #a855f7; }
+
+.stat-card h5 {
+    margin: 0;
+    font-weight: 800;
+    font-size: 1.5rem;
+    line-height: 1.2;
+}
+
+.stat-card span {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+/* --- Toolbar (Filter & Search) --- */
+.toolbar-section {
+    background: white;
+    padding: 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 20px; 
+}
+
+.custom-pills .nav-link {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    padding: 10px 24px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.custom-pills .nav-link:hover {
+    background-color: #f1f5f9;
+    color: var(--primary);
+}
+
+.custom-pills .nav-link.active {
+    background-color: var(--primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box i {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.search-box .form-control {
+    padding-left: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background-color: #f8fafc;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.search-box .form-control:focus {
+    background-color: white;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+}
+
+/* --- Proposal Card Design (REVISI BORDER & LAYOUT) --- */
+.proposal-card {
+    background: white;
+    border: 1px solid var(--border-color); /* Border keliling yang tegas */
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Efek Hover Card */
+.proposal-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--hover-shadow);
+    border-color: #cbd5e1;
+}
+
+/* Top Border Accent (Garis warna di atas kartu sesuai status) */
+.proposal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    /* Default color, overridden by JS/Inline style via classes */
+    background: #e2e8f0; 
+    transition: background 0.3s;
+}
+
+/* Border Accent Colors */
+.card-border-submitted::before { background: #f59e0b; }
+.card-border-accepted::before { background: #22c55e; }
+.card-border-rejected::before { background: #ef4444; }
+.card-border-viewed::before { background: #3b82f6; }
+
+.card-header-custom {
+    padding: 24px 24px 12px;
+}
+
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 3rem;
+    line-height: 1.5;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0;
+}
+
+.category-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    border: 1px solid #f1f5f9;
+}
+
+/* Status Pill Polish */
+.status-pill {
+    font-weight: 600;
+    padding: 6px 14px;
+    font-size: 0.75rem;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.avatar-sm {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+}
+
+.avatar-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--primary);
+    background-color: #eff6ff;
+}
+
+/* Info Grid Polish */
+.info-grid {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 15px;
+    border: 1px solid #f1f5f9; /* Border halus di dalam */
+}
+
+.info-item small {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.info-item span {
+    font-size: 1.1rem;
+    letter-spacing: -0.5px;
+}
+
+.card-footer {
+    padding: 0 24px 24px;
+}
+
+/* Buttons inside card */
+.btn-outline-primary {
+    border-color: var(--primary);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-light {
+    background: #f1f5f9;
+    border: 1px solid transparent;
+    font-weight: 500;
+}
+
+.hover-danger:hover {
+    background-color: #fef2f2 !important;
+    color: #ef4444 !important;
+    border-color: #fecaca !important;
+}
+
+/* Empty State */
+.empty-state-wrapper {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 80px 20px;
+    border: 2px dashed #cbd5e1; /* Dashed border lebih jelas */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-circle {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 10px 25px rgba(67, 97, 238, 0.15);
+}
+
+/* --- REVISI ANIMASI (Fix Scroll Issue) --- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.proposal-item {
+    opacity: 0; /* Default hidden sebelum animasi jalan */
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; /* Menggunakan forwards agar stay */
+}
+
+/* Staggered delay lebih cepat agar tidak terasa lambat */
+.proposal-item:nth-child(1) { animation-delay: 0.05s; }
+.proposal-item:nth-child(2) { animation-delay: 0.1s; }
+.proposal-item:nth-child(3) { animation-delay: 0.15s; }
+.proposal-item:nth-child(4) { animation-delay: 0.2s; }
+.proposal-item:nth-child(5) { animation-delay: 0.25s; }
+.proposal-item:nth-child(6) { animation-delay: 0.3s; }

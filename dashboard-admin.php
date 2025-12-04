@@ -263,77 +263,9 @@ $projectStatusData = [
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="konekin-navbar navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <!-- Brand -->
-            <a class="navbar-brand-konekin" href="dashboard-admin.php">
-                <i class="fas fa-handshake"></i>
-                Konekin Admin
-            </a>
-
-            <!-- Toggler untuk mobile -->
-            <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" 
-                    data-bs-target="#navbarContent" aria-controls="navbarContent" 
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <i class="fas fa-bars"></i>
-            </button>
-
-            <!-- Navbar Content -->
-            <div class="collapse navbar-collapse justify-content-between" id="navbarContent">
-                <!-- Menu Navigasi -->
-                <ul class="navbar-nav-konekin">
-                    <li class="nav-item-konekin">
-                        <a class="nav-link-konekin active" href="dashboard-admin.php">
-                            <i class="fas fa-home me-1"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item-konekin">
-                        <a class="nav-link-konekin" href="kelolauser.php">
-                            <i class="fas fa-users me-1"></i>
-                            <span>Kelola Pengguna</span>
-                        </a>
-                    </li>
-                    <li class="nav-item-konekin">
-                        <a class="nav-link-konekin" href="admin-projects.php">
-                            <i class="fas fa-project-diagram me-1"></i>
-                            <span>Kelola Proyek</span>
-                        </a>
-                    </li>
-                    <li class="nav-item-konekin">
-                        <a class="nav-link-konekin" href="admin-reports.php">
-                            <i class="fas fa-chart-bar me-1"></i>
-                            <span>Laporan</span>
-                        </a>
-                    </li>
-                    <li class="nav-item-konekin">
-                        <a class="nav-link-konekin" href="admin-settings.php">
-                            <i class="fas fa-cog me-1"></i>
-                            <span>Pengaturan</span>
-                        </a>
-                    </li>
-                </ul>
-
-                <!-- User Section -->
-                <div class="user-section">
-                    <div class="user-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="user-info">
-                        <a href="admin-profile.php" style="text-decoration: none; color: inherit;">
-                            <h6 class="user-name"><?php echo $_SESSION['full_name'] ?? 'Admin'; ?></h6>
-                        </a>
-                        <small class="user-type">Administrator</small>
-                    </div>
-                    <a href="logout.php" class="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
+   
+    <!-- Include Navbar -->
+    <?php include 'navbar-admin.php'; ?>
 
     <div class="container mt-4">
         <div class="row mb-4">
@@ -373,10 +305,19 @@ $projectStatusData = [
                     </div>
                 </div>
             </div>
-        </div>
+        <div class="dashboard-section">
+    <h3> </h3>
+    <div class="powerbi-frame">
+      <iframe title="KONEKIN" 
+      width="1024" 
+      height="804" 
+      src="https://app.powerbi.com/view?r=eyJrIjoiMDQ3YTAwZjktMzA4MS00YTViLWFhZGQtM2YzZWIyMmFmY2QwIiwidCI6ImE2OWUxOWU4LWYwYTQtNGU3Ny1iZmY2LTk1NjRjODgxOWIxNCJ9" 
+        frameborder="0" 
+        allowFullScreen="true"></iframe>
+    </div>
+</div>
 
         <div class="row mb-4">
-            <!-- Chart 1: Distribusi Jenis Pengguna -->
             <div class="col-md-6">
                 <div class="card stat-card">
                     <div class="card-header">
@@ -406,7 +347,6 @@ $projectStatusData = [
         </div>
 
         <div class="row mb-4">
-            <!-- Chart 3: Level Pengalaman Kreator -->
             <div class="col-md-6">
                 <div class="card stat-card">
                     <div class="card-header">
@@ -420,7 +360,6 @@ $projectStatusData = [
                 </div>
             </div>
 
-            <!-- Chart 4: Jenis Bisnis UMKM -->
             <div class="col-md-6">
                 <div class="card stat-card">
                     <div class="card-header">
@@ -436,7 +375,6 @@ $projectStatusData = [
         </div>
 
         <div class="row mb-4">
-            <!-- Chart 5: Status Proyek -->
             <div class="col-md-6">
                 <div class="card stat-card">
                     <div class="card-header">
@@ -450,7 +388,6 @@ $projectStatusData = [
                 </div>
             </div>
 
-            <!-- Chart 6: Trend Pendaftaran Pengguna -->
             <div class="col-md-6">
                 <div class="card stat-card">
                     <div class="card-header">
@@ -467,7 +404,6 @@ $projectStatusData = [
     </div>
 
     <script>
-        // Data untuk chart
         const chartData = {
             userType: {
                 creative: <?php echo $totalCreatives; ?>,
@@ -480,7 +416,6 @@ $projectStatusData = [
         };
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Chart 1: Distribusi Jenis Pengguna
             new Chart(document.getElementById('userTypeChart'), {
                 type: 'doughnut',
                 data: {
@@ -561,7 +496,6 @@ $projectStatusData = [
                 }
             });
 
-            // Chart 4: Jenis Bisnis UMKM
             new Chart(document.getElementById('businessTypeChart'), {
                 type: 'polarArea',
                 data: {
@@ -591,7 +525,6 @@ $projectStatusData = [
                 }
             });
 
-            // Chart 5: Status Proyek
             new Chart(document.getElementById('projectStatusChart'), {
                 type: 'line',
                 data: {
@@ -623,7 +556,6 @@ $projectStatusData = [
                 }
             });
 
-            // Chart 6: Trend Pendaftaran Pengguna (data statis seperti contoh)
             new Chart(document.getElementById('registrationChart'), {
                 type: 'line',
                 data: {

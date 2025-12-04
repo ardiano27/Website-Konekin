@@ -1,3 +1,50 @@
+<?php
+require_once 'notificationsmanager.php';
+class NotificationHelper {
+    public static function getNotificationIcon($type) {
+        $icons = [
+            'project' => 'project-diagram',
+            'proposal' => 'file-alt',
+            'message' => 'envelope',
+            'payment' => 'money-bill-wave',
+            'system' => 'info-circle',
+            'contract' => 'file-contract'
+        ];
+        return $icons[$type] ?? 'bell';
+    }
+
+    public static function timeAgo($datetime) {
+        $time = strtotime($datetime);
+        $now = time();
+        $diff = $now - $time;
+        
+        if ($diff < 60) {
+            return 'Baru saja';
+        } elseif ($diff < 3600) {
+            return floor($diff / 60) . ' menit lalu';
+        } elseif ($diff < 86400) {
+            return floor($diff / 3600) . ' jam lalu';
+        } elseif ($diff < 2592000) {
+            return floor($diff / 86400) . ' hari lalu';
+        } else {
+            return date('d M Y', $time);
+        }
+    }
+}
+
+// Inisialisasi Manager
+$notificationManager = new NotificationManager();
+
+// 2. GANTI NAMA VARIABEL $this MENJADI $helper
+$helper = new NotificationHelper();
+
+// Get unread notifications count
+$unread_count = $notificationManager->getUnreadCount($_SESSION['user_id']);
+
+// Get recent notifications
+$recent_notifications = $notificationManager->getUserNotifications($_SESSION['user_id'], 5);
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -205,8 +252,8 @@
         }
 
         .notification-dropdown {
-            min-width: 350px;
-            max-height: 400px;
+            min-width: 380px;
+            max-height: 500px;
             overflow-y: auto;
         }
 
@@ -215,6 +262,7 @@
             border-bottom: 1px solid #f1f3f4;
             transition: background-color 0.2s ease;
             cursor: pointer;
+            border-left: 3px solid transparent;
         }
 
         .notification-item:hover {
@@ -223,19 +271,21 @@
 
         .notification-item.unread {
             background-color: #f0f7ff;
-            border-left: 3px solid #3E7FD5;
+            border-left-color: #3E7FD5;
         }
 
         .notification-title {
             font-weight: 600;
             font-size: 0.9rem;
             margin-bottom: 0.25rem;
+            color: #2c3e50;
         }
 
         .notification-message {
             font-size: 0.8rem;
             color: #6c757d;
             margin-bottom: 0.25rem;
+            line-height: 1.4;
         }
 
         .notification-time {
@@ -244,14 +294,15 @@
         }
 
         .notification-type-icon {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 0.75rem;
             flex-shrink: 0;
+            font-size: 0.9rem;
         }
 
         .notification-type-project {
@@ -259,35 +310,41 @@
             color: #3E7FD5;
         }
 
-        .notification-type-message {
+        .notification-type-proposal {
             background: rgba(40, 167, 69, 0.1);
             color: #28a745;
         }
 
-        .notification-type-payment {
+        .notification-type-message {
             background: rgba(255, 193, 7, 0.1);
             color: #ffc107;
         }
 
-        .notification-type-system {
+        .notification-type-payment {
             background: rgba(108, 117, 125, 0.1);
             color: #6c757d;
         }
 
-        /* Badge untuk notifikasi */
-        .nav-badge {
-            background: #ff4757;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 0.65rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            top: -4px;
-            right: -4px;
+        .notification-type-system {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .notification-type-contract {
+            background: rgba(111, 66, 193, 0.1);
+            color: #6f42c1;
+        }
+
+        .empty-notifications {
+            padding: 2rem 1rem;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .empty-notifications i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
         }
 
         /* Mobile Styles */
@@ -359,7 +416,7 @@
 
             .notification-dropdown {
                 min-width: 300px;
-                max-height: 350px;
+                max-height: 400px;
             }
 
             .user-avatar {
@@ -385,25 +442,20 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="konekin-navbar navbar navbar-expand-lg">
         <div class="container-fluid">
-            <!-- Brand -->
             <a class="navbar-brand-konekin" href="dashboard.php">
                 <i class="fas fa-handshake"></i>
                 Konekin
             </a>
 
-            <!-- Toggler untuk mobile -->
             <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" 
                     data-bs-target="#navbarContent" aria-controls="navbarContent" 
                     aria-expanded="false" aria-label="Toggle navigation">
                 <i class="fas fa-bars"></i>
             </button>
 
-            <!-- Navbar Content -->
             <div class="collapse navbar-collapse justify-content-between" id="navbarContent">
-                <!-- Menu Navigasi -->
                 <ul class="navbar-nav-konekin">
                     <li class="nav-item-konekin">
                         <a class="nav-link-konekin" href="<?php echo $_SESSION['user_type'] === 'umkm' ? 'dashboard-umkm.php' : 'dashboard-creative.php'; ?>">
@@ -436,6 +488,12 @@
                             <a class="nav-link-konekin" href="projects.php">
                                 <i class="fas fa-tasks me-1"></i>
                                 <span>Proyek Saya</span>
+                            </a>
+                        </li>
+                        <li class="nav-item-konekin">
+                            <a class="nav-link-konekin" href="saved-projects.php">
+                                <i class="fas fa-bookmark me-1"></i>
+                                <span>Proyek Disimpan</span>
                             </a>
                         </li>
                         <li class="nav-item-konekin">
@@ -477,73 +535,52 @@
                     <input type="text" class="search-input" placeholder="<?php echo $searchPlaceholder; ?>">
                 </div>
 
-                <!-- User Section -->
                 <div class="user-section">
-                    <!-- Notification Bell -->
                     <div class="notification-bell dropdown">
                         <div class="notification-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-bell"></i>
-                            <span class="notification-badge">3</span>
+                            <?php if ($unread_count > 0): ?>
+                                <span class="notification-badge"><?php echo $unread_count; ?></span>
+                            <?php endif; ?>
                         </div>
                         <div class="dropdown-menu dropdown-menu-end notification-dropdown">
                             <div class="dropdown-header d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0">Notifikasi</h6>
-                                <a href="notifications.php" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
+                                <div>
+                                    <a href="notifications.php" class="btn btn-sm btn-outline-primary me-1">Lihat Semua</a>
+                                    <?php if ($unread_count > 0): ?>
+                                        <button class="btn btn-sm btn-outline-secondary mark-all-read">
+                                            Tandai Dibaca
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                             <div class="dropdown-divider"></div>
                             
-                            <!-- Notification Items -->
-                            <div class="notification-item unread">
-                                <div class="d-flex align-items-start">
-                                    <div class="notification-type-icon notification-type-project">
-                                        <i class="fas fa-project-diagram"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="notification-title">Proyek Disetujui</div>
-                                        <div class="notification-message">Proyek "Website UMKM" telah disetujui dan siap dikerjakan</div>
-                                        <div class="notification-time">2 menit lalu</div>
-                                    </div>
+                            <?php if (empty($recent_notifications)): ?>
+                                <div class="empty-notifications">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p class="mb-0">Tidak ada notifikasi</p>
                                 </div>
-                            </div>
-                            
-                            <div class="notification-item unread">
-                                <div class="d-flex align-items-start">
-                                    <div class="notification-type-icon notification-type-message">
-                                        <i class="fas fa-envelope"></i>
+                            <?php else: ?>
+                                <?php foreach ($recent_notifications as $notification): ?>
+                                    <div class="notification-item <?php echo !$notification['is_read'] ? 'unread' : ''; ?>" 
+                                         data-notification-id="<?php echo $notification['id']; ?>">
+                                        <div class="d-flex align-items-start">
+                                            <div class="notification-type-icon notification-type-<?php echo $notification['notification_type']; ?>">
+                                                <i class="fas fa-<?php echo $helper->getNotificationIcon($notification['notification_type']); ?>"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="notification-title"><?php echo htmlspecialchars($notification['title']); ?></div>
+                                                <div class="notification-message"><?php echo htmlspecialchars($notification['message']); ?></div>
+                                                <div class="notification-time">
+                                                    <?php echo $helper->timeAgo($notification['created_at']); ?>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="flex-grow-1">
-                                        <div class="notification-title">Pesan Baru</div>
-                                        <div class="notification-message">Anda mendapat pesan baru dari UMKM Sejahtera</div>
-                                        <div class="notification-time">1 jam lalu</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="notification-item">
-                                <div class="d-flex align-items-start">
-                                    <div class="notification-type-icon notification-type-payment">
-                                        <i class="fas fa-money-bill-wave"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="notification-title">Pembayaran Diterima</div>
-                                        <div class="notification-message">Pembayaran untuk proyek "Desain Logo" telah diterima</div>
-                                        <div class="notification-time">3 jam lalu</div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="notification-item">
-                                <div class="d-flex align-items-start">
-                                    <div class="notification-type-icon notification-type-system">
-                                        <i class="fas fa-info-circle"></i>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="notification-title">Update Sistem</div>
-                                        <div class="notification-message">Fitur progress tracking telah tersedia</div>
-                                        <div class="notification-time">1 hari lalu</div>
-                                    </div>
-                                </div>
-                            </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -573,10 +610,8 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Konten dashboard Anda di sini -->
-    </div>
+        </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -608,21 +643,12 @@
                 }
             });
 
-            // Script untuk notifikasi
+            // Script untuk notifikasi - mark as read ketika diklik
             const notificationItems = document.querySelectorAll('.notification-item');
             notificationItems.forEach(item => {
                 item.addEventListener('click', function() {
-                    // Remove unread class when clicked
-                    this.classList.remove('unread');
-                    
-                    // Update notification badge count
-                    const unreadCount = document.querySelectorAll('.notification-item.unread').length;
-                    const badge = document.querySelector('.notification-badge');
-                    badge.textContent = unreadCount;
-                    
-                    if (unreadCount === 0) {
-                        badge.style.display = 'none';
-                    }
+                    const notificationId = this.getAttribute('data-notification-id');
+                    markNotificationAsRead(notificationId, this);
                 });
             });
 
@@ -631,15 +657,81 @@
             if (markAllAsRead) {
                 markAllAsRead.addEventListener('click', function(e) {
                     e.preventDefault();
-                    notificationItems.forEach(item => {
-                        item.classList.remove('unread');
+                    e.stopPropagation();
+                    
+                    fetch('notifikasi-bacasemua.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Remove unread class from all notifications
+                            notificationItems.forEach(item => {
+                                item.classList.remove('unread');
+                            });
+                            
+                            // Update notification badge
+                            const badge = document.querySelector('.notification-badge');
+                            if (badge) {
+                                badge.remove();
+                            }
+                            
+                            // Hide mark all read button
+                            markAllAsRead.remove();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                     });
-                    const badge = document.querySelector('.notification-badge');
-                    badge.textContent = '0';
-                    badge.style.display = 'none';
                 });
             }
+
+            // Auto-refresh notifications every 30 seconds
+            setInterval(refreshNotifications, 30000);
         });
+
+        function markNotificationAsRead(notificationId, element) {
+            fetch('notifikasi-baca.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ notification_id: notificationId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove unread class
+                    element.classList.remove('unread');
+                    
+                    // Update notification badge count
+                    const badge = document.querySelector('.notification-badge');
+                    if (badge) {
+                        const currentCount = parseInt(badge.textContent);
+                        if (currentCount > 1) {
+                            badge.textContent = currentCount - 1;
+                        } else {
+                            badge.remove();
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function refreshNotifications() {
+           
+            const badge = document.querySelector('.notification-badge');
+            if (badge) {
+                // If there are unread notifications, refresh to check for new ones
+                location.reload();
+            }
+        }
     </script>
 </body>
 </html>

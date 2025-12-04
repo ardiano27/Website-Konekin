@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Check if user is admin
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
     header('Location: login.php');
     exit;
@@ -10,7 +9,7 @@ if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'admin') {
 require_once 'includes/config/database-chart.php';
 require_once __DIR__ . '/config/Database.php';
 
-// Inisialisasi koneksi database
+
 try {
     $database = new DatabaseConnection();
     $pdo = $database->getConnection();
@@ -22,7 +21,6 @@ try {
     die("Error koneksi database: " . $e->getMessage());
 }
 
-// Handle actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['toggle_user'])) {
         $user_id = (int)$_POST['user_id'];
@@ -40,12 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Handle AJAX request for user detail
 if (isset($_GET['ajax']) && $_GET['ajax'] === 'get_user_detail' && isset($_GET['id'])) {
     $user_id = (int)$_GET['id'];
     
     try {
-        // Get user basic info
         $stmt = $pdo->prepare("
             SELECT u.*, 
                    cp.experience_level, cp.bio as creative_bio,
@@ -63,7 +59,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'get_user_detail' && isset($_GET['
             exit;
         }
         
-        // Get user skills if creative - PERBAIKAN: multiple table尝试
+
         $skills = [];
         if ($user['user_type'] === 'creative') {
             $skill_tables = ['creative_skills', 'skills', 'user_skills'];
@@ -103,7 +99,6 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === 'get_user_detail' && isset($_GET['
             }
         }
         
-        // Output user detail HTML
         ?>
         <div class="row">
             <div class="col-md-4 text-center">
@@ -670,76 +665,7 @@ $umkm_users = array_filter($users, function($user) {
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="konekin-navbar navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <!-- Brand -->
-            <a class="navbar-brand-konekin" href="dashboard-admin.php">
-                <i class="fas fa-handshake"></i>
-                Konekin Admin
-            </a>
-
-            <!-- Toggler untuk mobile -->
-            <button class="navbar-toggler-custom d-lg-none" type="button" data-bs-toggle="collapse" 
-                    data-bs-target="#navbarContent" aria-controls="navbarContent" 
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <i class="fas fa-bars"></i>
-            </button>
-
-            <!-- Navbar Content -->
-            <div class="collapse navbar-collapse justify-content-between" id="navbarContent">
-                <!-- Menu Navigasi -->
-                <ul class="navbar-nav-konekin">
-                    <li class="nav-item-konekin">
-                        <a class="nav-link-konekin" href="dashboard-admin.php">
-                            <i class="fas fa-home me-1"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item-konekin">
-                        <a class="nav-link-konekin active" href="kelolauser.php">
-                            <i class="fas fa-users me-1"></i>
-                            <span>Kelola Pengguna</span>
-                        </a>
-                    </li>
-                    <li class="nav-item-konekin">
-                        <a class="nav-link-konekin" href="admin-projects.php">
-                            <i class="fas fa-project-diagram me-1"></i>
-                            <span>Kelola Proyek</span>
-                        </a>
-                    </li>
-                    <li class="nav-item-konekin">
-                        <a class="nav-link-konekin" href="admin-reports.php">
-                            <i class="fas fa-chart-bar me-1"></i>
-                            <span>Laporan</span>
-                        </a>
-                    </li>
-                    <li class="nav-item-konekin">
-                        <a class="nav-link-konekin" href="admin-settings.php">
-                            <i class="fas fa-cog me-1"></i>
-                            <span>Pengaturan</span>
-                        </a>
-                    </li>
-                </ul>
-
-                <!-- User Section -->
-                <div class="user-section">
-                    <div class="user-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="user-info">
-                        <a href="admin-profile.php" style="text-decoration: none; color: inherit;">
-                            <h6 class="user-name"><?php echo $_SESSION['full_name'] ?? 'Admin'; ?></h6>
-                        </a>
-                        <small class="user-type">Administrator</small>
-                    </div>
-                    <a href="logout.php" class="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <?php include 'navbar-admin.php'; ?>
 
     <div class="container-fluid py-4">
         <!-- Notifikasi -->

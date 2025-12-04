@@ -1,47 +1,43 @@
     <?php
-    // Mulai session dan set variabel user (simulasi)
     session_start();
-    $_SESSION['user_role'] = 'creative_worker';
-    $_SESSION['full_name'] = 'Yusuf Izzat';
 
-    // Koneksi database (menggunakan file Database.php yang sudah ada)
+
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'creative') {
+    header("Location: login.php");
+    exit();
+}
+
     require_once 'config/Database.php';
     $database = new DatabaseConnection();
     $conn = $database->getConnection();
 
-    // Query untuk mendapatkan data statistik creative worker
-    $user_id = 1; // ID user dari session, disini disimulasikan
+    $user_id = 1;
 
     try {
-        // Jumlah proposal yang dikirim
         $query_proposals = "SELECT COUNT(*) as total FROM proposals WHERE creative_user_id = :user_id";
         $stmt_proposals = $conn->prepare($query_proposals);
         $stmt_proposals->bindParam(':user_id', $user_id);
         $stmt_proposals->execute();
         $proposals_count = $stmt_proposals->fetch(PDO::FETCH_ASSOC)['total'];
 
-        // Jumlah proyek aktif (kontrak dengan status active)
         $query_active = "SELECT COUNT(*) as total FROM contracts WHERE creative_user_id = :user_id AND status = 'active'";
         $stmt_active = $conn->prepare($query_active);
         $stmt_active->bindParam(':user_id', $user_id);
         $stmt_active->execute();
         $active_count = $stmt_active->fetch(PDO::FETCH_ASSOC)['total'];
-
-        // Jumlah proyek selesai
+        
         $query_completed = "SELECT COUNT(*) as total FROM contracts WHERE creative_user_id = :user_id AND status = 'completed'";
         $stmt_completed = $conn->prepare($query_completed);
         $stmt_completed->bindParam(':user_id', $user_id);
         $stmt_completed->execute();
         $completed_count = $stmt_completed->fetch(PDO::FETCH_ASSOC)['total'];
 
-        // Rating dari creative profile
         $query_rating = "SELECT rating FROM creative_profiles WHERE user_id = :user_id";
         $stmt_rating = $conn->prepare($query_rating);
         $stmt_rating->bindParam(':user_id', $user_id);
         $stmt_rating->execute();
         $rating = $stmt_rating->fetch(PDO::FETCH_ASSOC)['rating'] ?? 0;
 
-        // Proyek aktif dengan detail
         $query_active_projects = "
             SELECT c.*, p.title, p.description, p.budget_range_max as budget
             FROM contracts c 
@@ -276,7 +272,7 @@
             <div class="welcome-card">
                 <div class="row align-items-center">
                     <div class="col-md-8">
-                        <h2>Selamat datang kembali, <?php echo $_SESSION['full_name']; ?>!</h2>
+                        <h2>Selamat datang kembali, Halo, <?php echo $_SESSION['full_name']; ?>!</h2>
                         <p class="mb-0">Ada 5 proyek baru yang sesuai dengan keahlian Anda. Mari mulai bekerja dan kembangkan portofolio Anda!</p>
                     </div>
                     <div class="col-md-4 text-md-end">
@@ -361,11 +357,10 @@
                     <?php endif; ?>
                     
                     <div class="text-center mt-3">
-                        <a href="my-proposals.php" class="btn btn-outline-primary">Lihat Semua Proyek</a>
+                        <a href="all-projects.php" class="btn btn-outline-primary">Lihat Semua Proyek</a>
                     </div>
                 </div>
                 
-                <!-- Quick Actions & Recommendations -->
                 <div class="col-lg-4">
                     <h3 class="section-title">Aksi Cepat</h3>
                     
