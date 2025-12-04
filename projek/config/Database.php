@@ -3,7 +3,7 @@
 if (!class_exists('DatabaseConnection')) {
     class DatabaseConnection {
         private $host = 'localhost';
-        private $db_name = 'fixkonekin';
+        private $db_name = 'konekin';
         private $username = 'root';
         private $password = '';
         public $conn;

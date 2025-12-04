@@ -1,0 +1,2 @@
+[01-Dec-2025 18:21:31 Europe/Berlin] send_message.php PDO error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '' for key 'uuid' | Code: 23000
+[01-Dec-2025 18:21:49 Europe/Berlin] send_message.php PDO error: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '' for key 'uuid' | Code: 23000

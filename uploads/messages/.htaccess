@@ -1,0 +1,18 @@
+# Allow direct access to uploaded files (optional)
+<IfModule mod_authz_core.c>
+    Require all granted
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Allow from all
+</IfModule>
+
+# Security headers for files
+<FilesMatch "\.(php|phtml|phar|html|htm|shtml|sh|cgi|pl)$">
+    Deny from all
+</FilesMatch>
+
+# Cache settings for files
+<FilesMatch "\.(jpg|jpeg|png|gif|webp|bmp|pdf|doc|docx|txt|zip|rar)$">
+    Header set Cache-Control "public, max-age=2592000"
+</FilesMatch>

@@ -1,0 +1,4 @@
+[2025-11-11 03:30:56] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"6","message_text":""},"FILES_keys":[],"COOKIE":["PHPSESSID"],"SESSION_user_id":2}
+[2025-11-11 03:30:56] INPUT: sender_id=2 receiver_id=6 text_len=0
+[2025-11-11 03:30:56] ERROR: Pesan tidak boleh kosong
+[2025-12-02 10:06:33] REQUEST START: {"URI":"\/Konekin\/projek\/send_message.php","METHOD":"POST","GET":[],"POST":{"receiver_id":"9","message_text":""},"FILES_keys":["attachment"],"COOKIE":["Hm_lvt_7b1919221e89d2aa5711e4deb935debd","PHPSESSID"],"SESSION_user_id":2}
