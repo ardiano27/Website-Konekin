@@ -2,7 +2,6 @@
 include "check_login.php";
 require_once 'config/Database.php';
 
-// Hanya creative worker yang bisa akses halaman ini
 if ($_SESSION['user_type'] !== 'creative') {
     header("Location: dashboard.php");
     exit;

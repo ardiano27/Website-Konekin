@@ -320,7 +320,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_proposal'])) {
                             </div>
                             <?php endif; ?>
                             
-                            <!-- Additional Requirements -->
                             <div class="detail-section">
                                 <h5 class="detail-label">Persyaratan Tambahan</h5>
                                 <div class="requirements-list">
