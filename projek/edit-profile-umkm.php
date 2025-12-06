@@ -144,7 +144,6 @@ try {
         $established_year = $_POST['established_year'] ?? '';
         $address = $_POST['address'] ?? '';
         $business_website = $_POST['business_website'] ?? '';
-        $tax_id = $_POST['tax_id'] ?? '';
         $whatsapp = $_POST['whatsapp'] ?? '';
         $instagram = $_POST['instagram'] ?? '';
         $tokopedia = $_POST['tokopedia'] ?? '';
@@ -168,7 +167,7 @@ try {
                 $stmt = $conn->prepare($update_user_query);
                 $stmt->execute([$full_name, $phone, $user_id]);
                 
-                // Update umkm_profiles table
+                // Update umkm_profiles table (NPWP dihapus sesuai permintaan)
                 $update_profile_query = "UPDATE umkm_profiles SET 
                                         business_name = ?, 
                                         business_type = ?, 
@@ -177,7 +176,6 @@ try {
                                         established_year = ?, 
                                         address = ?, 
                                         business_website = ?, 
-                                        tax_id = ?,
                                         whatsapp = ?,
                                         instagram = ?,
                                         tokopedia = ?,
@@ -193,7 +191,6 @@ try {
                     $established_year,
                     $address,
                     $business_website,
-                    $tax_id,
                     $whatsapp,
                     $instagram,
                     $tokopedia,
@@ -464,17 +461,19 @@ try {
                     </div>
                 </div>
                 
-                <!-- Avatar Section -->
+                <!-- Avatar Section - DIPERBAIKI: Selalu ada elemen img dengan ID current-avatar -->
                 <div class="text-center mt-4">
                     <div class="avatar-container-edit">
-                        <?php if (!empty($profile['avatar_url'])): ?>
-                            <img src="<?php echo htmlspecialchars($profile['avatar_url']); ?>" 
-                                 alt="Foto Profil" class="avatar-img-edit" id="current-avatar">
-                        <?php else: ?>
-                            <div class="avatar-placeholder-edit">
-                                <i class="fas fa-store"></i>
-                            </div>
-                        <?php endif; ?>
+                        <!-- Elemen img selalu ada, hanya display yang diatur -->
+                        <img id="current-avatar" 
+                             src="<?php echo !empty($profile['avatar_url']) ? htmlspecialchars($profile['avatar_url']) : ''; ?>" 
+                             alt="Foto Profil" class="avatar-img-edit" 
+                             style="<?php echo empty($profile['avatar_url']) ? 'display: none;' : ''; ?>">
+                        <!-- Placeholder hanya muncul jika tidak ada avatar -->
+                        <div id="avatar-placeholder" class="avatar-placeholder-edit" 
+                             style="<?php echo !empty($profile['avatar_url']) ? 'display: none;' : ''; ?>">
+                            <i class="fas fa-store"></i>
+                        </div>
                         <div class="avatar-upload-btn" data-bs-toggle="modal" data-bs-target="#avatarModal">
                             <i class="fas fa-camera"></i>
                         </div>
@@ -580,11 +579,7 @@ try {
                                    style="max-width: 200px;">
                         </div>
                         
-                        <div class="col-md-6 mb-3">
-                            <label for="tax_id" class="form-label">NPWP</label>
-                            <input type="text" class="form-control" id="tax_id" name="tax_id" 
-                                   value="<?php echo htmlspecialchars($profile['tax_id'] ?? ''); ?>">
-                        </div>
+                        <!-- NPWP DIHAPUS SESUAI PERMINTAAN -->
                         
                         <div class="col-12 mb-3">
                             <label for="business_description" class="form-label">Deskripsi Bisnis</label>
@@ -821,7 +816,7 @@ try {
             reader.readAsDataURL(file);
         });
 
-        // Save avatar
+        // Save avatar - DIPERBAIKI: Menangani elemen yang mungkin null
         document.getElementById('save-avatar').addEventListener('click', function() {
             if (!avatarCropper) {
                 alert('Silakan pilih gambar terlebih dahulu');
@@ -852,12 +847,24 @@ try {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update current avatar image
-                    document.getElementById('current-avatar').src = data.avatar_url + '?t=' + new Date().getTime();
+                    // PERBAIKAN: Pastikan elemen ada sebelum mengatur src
+                    const currentAvatar = document.getElementById('current-avatar');
+                    const avatarPlaceholder = document.getElementById('avatar-placeholder');
+                    
+                    if (currentAvatar) {
+                        currentAvatar.src = data.avatar_url + '?t=' + new Date().getTime();
+                        currentAvatar.style.display = 'block';
+                    }
+                    
+                    if (avatarPlaceholder) {
+                        avatarPlaceholder.style.display = 'none';
+                    }
                     
                     // Close modal
                     const modal = bootstrap.Modal.getInstance(document.getElementById('avatarModal'));
-                    modal.hide();
+                    if (modal) {
+                        modal.hide();
+                    }
                     
                     // Show success message
                     showNotification('Foto profil berhasil diperbarui!', 'success');
@@ -940,12 +947,17 @@ try {
                     .then(data => {
                         if (data.success) {
                             // Update background image
-                            document.getElementById('profile-background').style.backgroundImage = 
-                                'url("' + data.background_url + '?t=' + new Date().getTime() + '")';
+                            const profileBackground = document.getElementById('profile-background');
+                            if (profileBackground) {
+                                profileBackground.style.backgroundImage = 
+                                    'url("' + data.background_url + '?t=' + new Date().getTime() + '")';
+                            }
                             
                             // Close modal
                             const modal = bootstrap.Modal.getInstance(document.getElementById('backgroundModal'));
-                            modal.hide();
+                            if (modal) {
+                                modal.hide();
+                            }
                             
                             // Show success message
                             showNotification('Background profil berhasil diperbarui!', 'success');
@@ -967,62 +979,74 @@ try {
         });
 
         // Format nomor telepon
-        document.getElementById('phone').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.startsWith('0')) {
-                value = '62' + value.substring(1);
-            }
-            e.target.value = value;
-        });
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.startsWith('0')) {
+                    value = '62' + value.substring(1);
+                }
+                e.target.value = value;
+            });
+        }
 
         // Format WhatsApp
-        document.getElementById('whatsapp').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.startsWith('0')) {
-                value = '62' + value.substring(1);
-            }
-            e.target.value = value;
-        });
+        const whatsappInput = document.getElementById('whatsapp');
+        if (whatsappInput) {
+            whatsappInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.startsWith('0')) {
+                    value = '62' + value.substring(1);
+                }
+                e.target.value = value;
+            });
+        }
 
         // Format Instagram (remove @)
-        document.getElementById('instagram').addEventListener('input', function(e) {
-            let value = e.target.value.replace('@', '');
-            e.target.value = value;
-        });
+        const instagramInput = document.getElementById('instagram');
+        if (instagramInput) {
+            instagramInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace('@', '');
+                e.target.value = value;
+            });
+        }
 
         // Validasi form
-        document.getElementById('profile-form').addEventListener('submit', function(e) {
-            const requiredFields = this.querySelectorAll('[required]');
-            let isValid = true;
-            
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    isValid = false;
-                    field.classList.add('is-invalid');
-                    
-                    if (!field.nextElementSibling?.classList.contains('invalid-feedback')) {
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = 'invalid-feedback';
-                        errorDiv.textContent = 'Field ini wajib diisi';
-                        field.parentNode.appendChild(errorDiv);
+        const profileForm = document.getElementById('profile-form');
+        if (profileForm) {
+            profileForm.addEventListener('submit', function(e) {
+                const requiredFields = this.querySelectorAll('[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('is-invalid');
+                        
+                        if (!field.nextElementSibling?.classList.contains('invalid-feedback')) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'invalid-feedback';
+                            errorDiv.textContent = 'Field ini wajib diisi';
+                            field.parentNode.appendChild(errorDiv);
+                        }
+                    } else {
+                        field.classList.remove('is-invalid');
+                        const errorDiv = field.parentNode.querySelector('.invalid-feedback');
+                        if (errorDiv) errorDiv.remove();
                     }
-                } else {
-                    field.classList.remove('is-invalid');
-                    const errorDiv = field.parentNode.querySelector('.invalid-feedback');
-                    if (errorDiv) errorDiv.remove();
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    const firstError = this.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.focus();
+                    }
+                    showNotification('Harap isi semua field yang wajib diisi', 'error');
                 }
             });
-            
-            if (!isValid) {
-                e.preventDefault();
-                const firstError = this.querySelector('.is-invalid');
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    firstError.focus();
-                }
-                showNotification('Harap isi semua field yang wajib diisi', 'error');
-            }
-        });
+        }
 
         // Show notification
         function showNotification(message, type = 'info') {
@@ -1054,20 +1078,31 @@ try {
             const backgroundModal = document.getElementById('backgroundModal');
             
             // Reset cropper when modal is closed
-            avatarModal.addEventListener('hidden.bs.modal', function () {
-                if (avatarCropper) {
-                    avatarCropper.destroy();
-                    avatarCropper = null;
-                }
-                document.getElementById('avatar-cropper').style.display = 'none';
-                document.getElementById('avatar-upload').value = '';
-                document.getElementById('avatar-preview').src = '';
-            });
+            if (avatarModal) {
+                avatarModal.addEventListener('hidden.bs.modal', function () {
+                    if (avatarCropper) {
+                        avatarCropper.destroy();
+                        avatarCropper = null;
+                    }
+                    const avatarCropperImg = document.getElementById('avatar-cropper');
+                    if (avatarCropperImg) {
+                        avatarCropperImg.style.display = 'none';
+                    }
+                    const avatarUpload = document.getElementById('avatar-upload');
+                    if (avatarUpload) avatarUpload.value = '';
+                    const avatarPreview = document.getElementById('avatar-preview');
+                    if (avatarPreview) avatarPreview.src = '';
+                });
+            }
             
-            backgroundModal.addEventListener('hidden.bs.modal', function () {
-                document.getElementById('background-upload').value = '';
-                document.getElementById('background-preview').src = '';
-            });
+            if (backgroundModal) {
+                backgroundModal.addEventListener('hidden.bs.modal', function () {
+                    const backgroundUpload = document.getElementById('background-upload');
+                    if (backgroundUpload) backgroundUpload.value = '';
+                    const backgroundPreview = document.getElementById('background-preview');
+                    if (backgroundPreview) backgroundPreview.src = '';
+                });
+            }
         });
     </script>
 </body>

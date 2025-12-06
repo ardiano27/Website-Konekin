@@ -3,788 +3,761 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Konekin - Platform Penghubung Creative Worker & UMKM</title>
+    <title>Konekin - Kolaborasi UMKM & Kreator Profesional</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
     <style>
+        /* --- VARS & GLOBAL --- */
         :root {
-            --primary-color: #3E7FD5;
-            --primary-dark: #2A5EA8;
-            --primary-light: #6CA1E8;
-            --secondary-color: #FF7E5F;
-            --accent-color: #4ECDC4;
-            --neutral-dark: #2D3748;
-            --neutral-light: #f8f9fa;
-            --success-color: #48BB78;
-            --warning-color: #ED8936;
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #60a5fa;
+            --secondary-color: #475569;
+            --accent-color: #f59e0b;
+            --dark-color: #1e293b;
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --umkm-color: #1e40af;
+            --creative-color: #7c3aed;
+            --success-color: #10b981;
         }
-        
+
         body {
-            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding-top: 55px;
-            background-color: #f8fafc;
-        }
-        
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1030;
-            background: white;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            border-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(62, 127, 213, 0.3);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-color);
+            overflow-x: hidden;
         }
 
-        /* --- UPDATED INTERACTIVE SECTION STYLE (START) --- */
-        .interactive-section {
-            position: relative;
-            padding: 100px 0;
-            overflow: hidden;
-            background: radial-gradient(circle at center, #f8fafc 0%, #edf2f7 100%);
-        }
-
-        .interaction-container {
-            position: relative;
-            height: 500px;
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        /* SVG Connector Lines Layer */
-        .connector-svg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .connector-path {
-            fill: none;
-            stroke: var(--primary-light);
-            stroke-width: 2;
-            stroke-dasharray: 10;
-            animation: dashFlow 30s linear infinite;
-            opacity: 0.4;
-        }
-
-        @keyframes dashFlow {
-            to { stroke-dashoffset: -1000; }
-        }
-
-        /* Character Avatars */
-        .character-wrapper {
-            position: absolute;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-        }
-
-        .character-wrapper:hover {
-            transform: translateY(-10px) scale(1.05);
-            z-index: 10;
-        }
-
-        .character-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 40px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            border: 4px solid white;
-            position: relative;
-        }
-
-        /* Status Indicator Dot */
-        .character-avatar::after {
-            content: '';
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            width: 20px;
-            height: 20px;
-            background: #48BB78;
-            border: 3px solid white;
-            border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .character-label {
-            margin-top: 15px;
-            font-weight: 600;
-            color: var(--neutral-dark);
-            background: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        /* Positioning Avatars */
-        .pos-umkm { top: 50px; left: 50px; }
-        .pos-creative { top: 50px; right: 50px; }
-        .pos-deal { bottom: 50px; left: 50%; transform: translateX(-50%); }
-
-        /* Chat Bubbles (Glassmorphism) */
-        .chat-bubble {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 20px;
-            padding: 20px 25px;
-            max-width: 280px;
-            box-shadow: 0 10px 40px rgba(62, 127, 213, 0.15);
-            z-index: 5;
-            opacity: 0;
-            animation: popIn 0.5s ease forwards;
-        }
-
-        .chat-bubble p {
-            color: var(--neutral-dark);
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .chat-bubble small {
-            display: block;
-            margin-top: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--primary-color);
-        }
-
-        /* Bubble Positions & Animations */
-        .bubble-1 {
-            top: 60px; left: 170px;
-            border-left: 4px solid var(--secondary-color);
-            animation-delay: 0.5s;
-        }
-        .bubble-1:before { /* Arrow */
-            content: ''; position: absolute; left: -10px; top: 20px;
-            border-top: 10px solid transparent; border-bottom: 10px solid transparent; 
-            border-right: 10px solid rgba(255, 255, 255, 0.9);
-        }
-
-        .bubble-2 {
-            top: 120px; right: 170px;
-            border-right: 4px solid var(--accent-color);
-            animation-delay: 1.5s;
-            text-align: right;
-        }
-        .bubble-2:before {
-            content: ''; position: absolute; right: -10px; top: 20px;
-            border-top: 10px solid transparent; border-bottom: 10px solid transparent; 
-            border-left: 10px solid rgba(255, 255, 255, 0.9);
-        }
-
-        .bubble-3 {
-            bottom: 160px; left: 50%;
-            transform: translateX(-50%) scale(0.9);
-            border-bottom: 4px solid var(--success-color);
-            text-align: center;
-            animation-delay: 2.5s;
-            animation-name: popInCenter;
-        }
-
-        @keyframes popIn {
-            from { opacity: 0; transform: translateY(20px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        @keyframes popInCenter {
-            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-
-        /* Responsive Design for Interactive Section */
-        @media (max-width: 992px) {
-            .interaction-container { height: auto; padding: 20px; }
-            .connector-svg { display: none; }
-            
-            .character-wrapper {
-                position: relative;
-                top: auto !important;
-                left: auto !important;
-                right: auto !important;
-                bottom: auto !important;
-                transform: none !important;
-                flex-direction: row;
-                margin-bottom: 20px;
-                width: 100%;
-                cursor: default;
-            }
-            
-            .character-avatar {
-                width: 60px; height: 60px; font-size: 24px;
-                margin-right: 15px; flex-shrink: 0;
-            }
-            
-            .character-label { margin: 0; }
-            
-            .pos-creative { flex-direction: row-reverse; }
-            .pos-creative .character-avatar { margin-right: 0; margin-left: 15px; }
-            
-            .chat-bubble {
-                position: relative;
-                top: auto !important;
-                left: auto !important;
-                right: auto !important;
-                bottom: auto !important;
-                transform: none !important;
-                margin: 0 0 30px 0;
-                max-width: 100%;
-                width: 100%;
-                animation: popIn 0.5s ease forwards !important;
-            }
-            
-            .bubble-1 { margin-left: 30px; }
-            .bubble-2 { margin-right: 30px; text-align: left; }
-            .bubble-3 { margin-top: 20px; text-align: center; }
-            .bubble-3:before { display: none; } /* Hide arrow for deal bubble if any */
-            
-            .pos-deal { justify-content: center; margin-top: 40px; }
-        }
-       
-        /* Enhanced Features */
-        .feature-card {
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
-            transition: all 0.4s ease;
-            height: 100%;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
-        }
-        
-        .feature-icon-wrapper {
-            width: 80px;
-            height: 80px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .feature-card:hover .feature-icon-wrapper {
-            transform: rotate(15deg) scale(1.1);
-        }
-        
-        /* Stats Counter */
-        .stats-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease;
-        }
-        
-        .stats-card:hover {
-            transform: translateY(-10px);
-        }
-        
-        .counter {
-            font-size: 48px;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-        
-        /* Enhanced Hero */
-        .hero-section {
-            background: linear-gradient(135deg, rgba(62, 127, 213, 0.9), rgba(42, 94, 168, 0.95)), 
-                        url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 150px 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero-section:before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 100px;
-            background: linear-gradient(to bottom, transparent, #f8fafc);
-        }
-        
-        /* Floating Elements */
-        .floating-element {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: floatAround 20s linear infinite;
-        }
-        
-        @keyframes floatAround {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(50px, 50px) rotate(90deg); }
-            50% { transform: translate(0, 100px) rotate(180deg); }
-            75% { transform: translate(-50px, 50px) rotate(270deg); }
-            100% { transform: translate(0, 0) rotate(360deg); }
-        }
-        
-        /* Typography */
         h1, h2, h3, h4, h5, h6 {
-            font-weight: 700;
-            line-height: 1.2;
+            font-family: 'Poppins', sans-serif;
         }
-        
-        .display-4 {
-            font-size: 3.5rem;
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background: rgba(255, 255, 255, 0.98) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            padding: 1rem 0;
+            transition: all 0.3s;
+        }
+        .navbar-brand {
             font-weight: 800;
+            color: var(--primary-color) !important;
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
         }
-        
-        .lead {
-            font-size: 1.25rem;
+        .navbar-brand i {
+            background: linear-gradient(135deg, var(--primary-color), var(--creative-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-link {
+            font-weight: 600;
+            color: var(--dark-color) !important;
+            margin-left: 1.2rem;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+        .btn-login-nav {
+            background: transparent;
+            color: var(--primary-color) !important;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 700;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+        .btn-login-nav:hover {
+            background: var(--primary-color);
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .btn-signup-nav {
+            background: var(--primary-color);
+            color: white !important;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            transition: all 0.3s;
+            border: 2px solid var(--primary-color);
+        }
+        .btn-signup-nav:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero-section {
+            position: relative;
+            padding: 160px 0 100px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            overflow: hidden;
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0) 70%);
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .hero-content h1 {
+            font-weight: 800;
+            font-size: 3.2rem;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--creative-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-content p {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+            margin-bottom: 2.5rem;
             font-weight: 400;
             line-height: 1.6;
         }
-        
+        .btn-cta {
+            padding: 0.9rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-cta-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        .btn-cta-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3);
+        }
+        .hero-image-container {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero-image {
+            max-width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            transform: perspective(1000px) rotateY(-10deg);
+            transition: all 0.5s ease;
+            border: 8px solid white;
+        }
+        .hero-image:hover {
+            transform: perspective(1000px) rotateY(0deg);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- FEATURED PROFILES SECTION --- */
+        .profiles-section {
+            padding: 100px 0;
+            background: white;
+        }
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+        .section-title h6 {
+            color: var(--primary-color);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        .section-title h2 {
+            font-weight: 800;
+            font-size: 2.8rem;
+            color: var(--dark-color);
+        }
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            border: none;
+            height: 100%;
+            margin-bottom: 30px;
+            position: relative;
+            cursor: pointer;
+        }
+        .profile-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+        .profile-card-header {
+            height: 160px;
+            position: relative;
+            overflow: hidden;
+        }
+        .umkm-profile .profile-card-header {
+            background: linear-gradient(135deg, var(--umkm-color), #3b82f6);
+        }
+        .creative-profile .profile-card-header {
+            background: linear-gradient(135deg, var(--creative-color), #8b5cf6);
+        }
+        .profile-card-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 5px solid white;
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            object-fit: cover;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .profile-card-body {
+            padding: 60px 25px 30px;
+            text-align: center;
+        }
+        .profile-card-name {
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            color: var(--dark-color);
+        }
+        .profile-card-title {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        .profile-card-desc {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .profile-card-stats {
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            margin-top: 5px;
+        }
+        .profile-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .umkm-profile .profile-badge {
+            color: var(--umkm-color);
+        }
+        .creative-profile .profile-badge {
+            color: var(--creative-color);
+        }
+
+        /* --- HOW IT WORKS SECTION --- */
+        .how-it-works {
+            padding: 100px 0;
+            background: #f8fafc;
+        }
+        .step-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+            border-top: 5px solid var(--primary-color);
+        }
+        .step-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 25px;
+        }
+        .step-title {
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+        .step-desc {
+            color: var(--secondary-color);
+            line-height: 1.6;
+        }
+
+        /* --- MODAL STYLES --- */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            overflow: hidden;
+        }
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--creative-color));
+            color: white;
+            border-bottom: none;
+            padding: 30px;
+        }
+        .modal-body {
+            padding: 30px;
+            text-align: center;
+        }
+        .modal-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        .btn-modal {
+            padding: 10px 30px;
+            font-weight: 600;
+            border-radius: 10px;
+            margin: 0 10px;
+        }
+        .btn-modal-login {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        .btn-modal-login:hover {
+            background: var(--primary-dark);
+        }
+        .btn-modal-signup {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        .btn-modal-signup:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            background: #1e293b;
+            color: rgba(255,255,255,0.7);
+            padding: 80px 0 30px;
+            position: relative;
+        }
+        .footer-brand {
+            color: white;
+            font-weight: 800;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            text-decoration: none;
+        }
+        .footer-title {
+            color: white;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .footer ul { list-style: none; padding: 0; }
+        .footer ul li { margin-bottom: 1rem; }
+        .footer ul li a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .footer ul li a:hover {
+            color: var(--accent-color);
+            padding-left: 8px;
+        }
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 50%;
+            margin-right: 10px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .social-links a:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-3px);
+        }
+        .footer-bottom {
+            margin-top: 70px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        /* --- RESPONSIVE --- */
         @media (max-width: 768px) {
-            .display-4 {
+            .hero-content h1 {
                 font-size: 2.5rem;
+            }
+            .section-title h2 {
+                font-size: 2.2rem;
+            }
+            .hero-image {
+                margin-top: 40px;
+                transform: none;
             }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light shadow-sm">
+
+    <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="index.php">
+            <a class="navbar-brand" href="index.php">
                 <i class="fas fa-handshake me-2"></i>Konekin
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link" href="#how-it-works">Cara Kerja</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#features">Keunggulan</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#interactive">Interaksi</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#about">Tentang</a></li>
-                </ul>
-                
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <div class="user-menu d-flex align-items-center gap-3">
-                        <span class="user-welcome fw-medium">Halo, <?php echo $_SESSION['full_name']; ?>!</span>
-                        <a href="dashboard.php" class="btn btn-outline-primary">
-                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                    <li class="nav-item"><a class="nav-link" href="#profiles">Profil</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tentang">Tentang Kami</a></li>
+                    <li class="nav-item ms-lg-3">
+                        <a class="btn btn-login-nav" href="login.php">
+                            Masuk
                         </a>
-                    </div>
-                <?php else: ?>
-                    <div class="d-flex gap-2">
-                        <a href="login.php" class="btn btn-outline-primary px-4">Log in</a>
-                        <a href="register-choice.php" class="btn btn-primary px-4">Sign Up</a>
-                    </div>
-                <?php endif; ?>
+                        <a class="btn btn-signup-nav" href="register-choice.php">
+                            Daftar
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
 
-    <section class="hero-section">
-        <div class="container">
+    <header class="hero-section">
+        <div class="container position-relative z-2">
             <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold mb-4">Bangun Bisnis Digital Anda Bersama Talent Terbaik</h1>
-                    <p class="lead mb-5">Platform penghubung UMKM dengan creative worker untuk transformasi digital dan perluasan lapangan kerja.</p>
-                    
-                    <?php if (!isset($_SESSION['user_id'])): ?>
-                        <div class="row g-3 mb-5">
-                            <div class="col-md-6">
-                                <a href="register-choice.php?type=umkm" class="btn btn-light btn-lg w-100 py-3 fw-bold d-flex align-items-center justify-content-center">
-                                    <i class="fas fa-store me-3"></i>Mulai sebagai UMKM
-                                </a>
-                            </div>
-                            <div class="col-md-6">
-                                <a href="register-choice.php?type=creative" class="btn btn-outline-light btn-lg w-100 py-3 fw-bold d-flex align-items-center justify-content-center">
-                                    <i class="fas fa-palette me-3"></i>Jadi Creative Worker
-                                </a>
-                            </div>
-                        </div>
-                    <?php else: ?>
-                        <a href="dashboard.php" class="btn btn-light btn-lg px-5 py-3 fw-bold">
-                            <i class="fas fa-rocket me-2"></i>Lanjutkan ke Dashboard
-                        </a>
-                    <?php endif; ?>
-                    
-                    <div class="d-flex align-items-center gap-4 mt-4">
-                        <div class="d-flex">
-                            <div class="me-3">
-                                <i class="fas fa-check-circle text-success fa-lg"></i>
-                            </div>
-                            <div>
-                                <p class="mb-0 fw-medium">100% Payment Protection</p>
-                                <small class="text-light">Transaksi aman terjamin</small>
-                            </div>
-                        </div>
-                        <div class="d-flex">
-                            <div class="me-3">
-                                <i class="fas fa-check-circle text-success fa-lg"></i>
-                            </div>
-                            <div>
-                                <p class="mb-0 fw-medium">Quality Guarantee</p>
-                                <small class="text-light">Hasil kerja berkualitas</small>
-                            </div>
+                <div class="col-lg-6" data-aos="fade-right" data-aos-duration="1000">
+                    <div class="hero-content">
+                        <h1>Bangun Ekonomi Kreatif Melalui Kolaborasi Nyata</h1>
+                        <p>Platform ekosistem yang mempertemukan visi bisnis UMKM dengan keahlian para kreator profesional Indonesia untuk menciptakan dampak luar biasa.</p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="#profiles" class="btn btn-cta btn-cta-primary shadow-lg">
+                                Jelajahi Peluang <i class="fas fa-arrow-right ms-2"></i>
+                            </a>
+                            <a href="#how-it-works" class="btn btn-cta btn-outline-primary shadow-sm">
+                                <i class="fas fa-play-circle me-2"></i>Cara Kerja
+                            </a>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="position-relative">
-                        <div class="floating-element" style="width: 100px; height: 100px; background: var(--primary-light); top: -20px; left: 50px;"></div>
-                        <div class="floating-element" style="width: 150px; height: 150px; background: var(--accent-color); bottom: 50px; right: 30px; animation-delay: -5s;"></div>
-                        <div class="floating-element" style="width: 80px; height: 80px; background: var(--secondary-color); top: 100px; right: 100px; animation-delay: -10s;"></div>
+                <div class="col-lg-6" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
+                    <div class="hero-image-container">
+                        <!-- Menggunakan gambar dari file ideas creative think.png -->
+                        <img src="assets/images/ekonomi kreatif design.jpg" alt="Creative Ideas" class="hero-image">
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </header>
 
-    <section id="interactive" class="interactive-section">
+    <section id="profiles" class="profiles-section">
         <div class="container">
-            <div class="text-center mb-5">
-                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3">Workflow</span>
-                <h2 class="fw-bold mb-3">Kolaborasi yang Seamless</h2>
-                <p class="lead text-muted">Dari diskusi hingga transaksi, semua terjadi dalam satu platform.</p>
+            <div class="section-title" data-aos="fade-up">
+                <h6>Temukan Talenta Terbaik</h6>
+                <h2>Profil Unggulan Konekin</h2>
+                <p class="text-muted" style="font-size: 1.1rem;">Bergabunglah dengan komunitas profesional kami untuk kolaborasi yang lebih baik.</p>
             </div>
             
-            <div class="interaction-container">
-                <svg class="connector-svg" viewBox="0 0 1000 500" preserveAspectRatio="none">
-                    <path class="connector-path" d="M 100,100 Q 250,100 300,150 T 500,250" />
-                    <path class="connector-path" d="M 900,100 Q 750,100 700,150 T 500,250" />
-                    <path class="connector-path" d="M 500,250 L 500,400" />
-                </svg>
-
-                <div class="character-wrapper pos-umkm">
-                    <div class="character-avatar" style="background: linear-gradient(135deg, #FF7E5F, #feb47b);">
-                        <i class="fas fa-store"></i>
+            <div class="row g-4">
+                <!-- UMKM Profile Card -->
+                <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="profile-card umkm-profile" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        <div class="profile-card-header">
+                            <span class="profile-badge">UMKM</span>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                             alt="UMKM Profile" class="profile-card-img">
+                        <div class="profile-card-body">
+                            <h4 class="profile-card-name">Berkah Jaya Batik</h4>
+                            <p class="profile-card-title">Bisnis Fashion & Kerajinan</p>
+                            <p class="profile-card-desc">Produsen batik tradisional dengan 10 tahun pengalaman, mencari kreator untuk pengembangan branding digital.</p>
+                            <div class="profile-card-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">24</div>
+                                    <div class="stat-label">Proyek</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">4.8</div>
+                                    <div class="stat-label">Rating</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">15</div>
+                                    <div class="stat-label">Kreator</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="character-label">UMKM Owner</div>
                 </div>
 
-                <div class="chat-bubble bubble-1">
-                    <p class="mb-0 fw-medium">"Halo, saya butuh redesign logo untuk brand kopi saya agar lebih kekinian."</p>
-                    <small><i class="fas fa-paper-plane me-1"></i> Request Project</small>
-                </div>
-
-                <div class="character-wrapper pos-creative">
-                    <div class="character-avatar" style="background: linear-gradient(135deg, #4ECDC4, #556270);">
-                        <i class="fas fa-laptop-code"></i>
+                <!-- Creative Profile Card -->
+                <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="profile-card creative-profile" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        <div class="profile-card-header">
+                            <span class="profile-badge">Kreator</span>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                             alt="Creative Profile" class="profile-card-img">
+                        <div class="profile-card-body">
+                            <h4 class="profile-card-name">Ahmad Digital</h4>
+                            <p class="profile-card-title">UI/UX Designer & Developer</p>
+                            <p class="profile-card-desc">Spesialis dalam desain digital untuk UMKM, telah menyelesaikan 50+ proyek dengan kepuasan klien 98%.</p>
+                            <div class="profile-card-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">57</div>
+                                    <div class="stat-label">Proyek</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">4.9</div>
+                                    <div class="stat-label">Rating</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">Rp 2,5jt</div>
+                                    <div class="stat-label">/proyek</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="character-label">Creative Worker</div>
-                </div>
-
-                <div class="chat-bubble bubble-2">
-                    <p class="mb-0 fw-medium">"Siap! Saya punya pengalaman di F&B. Saya kirimkan portofolio dan penawarannya ya."</p>
-                    <small><i class="fas fa-reply me-1"></i> Proposal Sent</small>
-                </div>
-
-                <div class="chat-bubble bubble-3">
-                    <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
-                        <i class="fas fa-handshake text-success fa-2x"></i>
-                        <span class="h5 mb-0 fw-bold text-dark">DEAL!</span>
-                    </div>
-                    <p class="mb-0 text-muted">Project dimulai dengan sistem Escrow.</p>
-                </div>
-
-                <div class="character-wrapper pos-deal">
-                    <div class="character-avatar" style="background: linear-gradient(135deg, #48BB78, #38A169); width: 80px; height: 80px; font-size: 30px;">
-                        <i class="fas fa-check"></i>
-                    </div>
-                    <div class="character-label">Project Start</div>
                 </div>
             </div>
-            
+
             <div class="row mt-5">
-                <div class="col-lg-8 mx-auto text-center">
-                    <p class="text-muted mb-4">Fitur chat terintegrasi memudahkan negosiasi harga dan revisi tanpa harus pindah aplikasi.</p>
-                    <a href="register-choice.php" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
-                        Mulai Kolaborasi Sekarang
+                <div class="col-12 text-center" data-aos="fade-up" data-aos-delay="300">
+                    <p class="text-muted">Ingin melihat lebih banyak profil? Bergabunglah dengan komunitas kami!</p>
+                    <a href="register-choice.php" class="btn btn-primary btn-lg px-5">
+                        <i class="fas fa-user-plus me-2"></i>Bergabung Sekarang
                     </a>
                 </div>
             </div>
         </div>
     </section>
-    <section id="features" class="py-5 bg-light">
+
+    <section id="how-it-works" class="how-it-works">
         <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="mb-3">Keunggulan Platform Konekin</h2>
-                <p class="lead text-muted">Solusi lengkap untuk digitalisasi bisnis UMKM</p>
+            <div class="section-title" data-aos="fade-up">
+                <h6>Cara Kerja Platform</h6>
+                <h2>Kolaborasi dalam 4 Langkah Mudah</h2>
+                <p class="text-muted" style="font-size: 1.1rem;">Temukan cara Konekin menghubungkan UMKM dengan kreator profesional.</p>
             </div>
             
             <div class="row g-4">
-                <div class="col-md-6 col-lg-3">
-                    <div class="feature-card bg-white shadow-sm p-4">
-                        <div class="feature-icon-wrapper" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));">
-                            <i class="fas fa-robot fa-2x text-white"></i>
-                        </div>
-                        <h5 class="fw-bold mb-3">AI Matching System</h5>
-                        <p class="text-muted">Sistem kecerdasan buatan yang mencocokkan UMKM dengan creative worker paling sesuai berdasarkan skill dan kebutuhan.</p>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h4 class="step-title">Daftar Akun</h4>
+                        <p class="step-desc">Pilih peran Anda sebagai UMKM atau Kreator. Lengkapi profil untuk mendapatkan rekomendasi terbaik.</p>
                     </div>
                 </div>
                 
-                <div class="col-md-6 col-lg-3">
-                    <div class="feature-card bg-white shadow-sm p-4">
-                        <div class="feature-icon-wrapper" style="background: linear-gradient(135deg, var(--secondary-color), #E86A4A);">
-                            <i class="fas fa-comments-dollar fa-2x text-white"></i>
-                        </div>
-                        <h5 class="fw-bold mb-3">Smart Negotiation</h5>
-                        <p class="text-muted">Fitur negosiasi terintegrasi dengan rekomendasi harga berdasarkan kompleksitas project dan tingkat skill.</p>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h4 class="step-title">Temukan Partner</h4>
+                        <p class="step-desc">Cari dan temukan UMKM atau kreator yang sesuai dengan kebutuhan dan keahlian Anda.</p>
                     </div>
                 </div>
                 
-                <div class="col-md-6 col-lg-3">
-                    <div class="feature-card bg-white shadow-sm p-4">
-                        <div class="feature-icon-wrapper" style="background: linear-gradient(135deg, var(--accent-color), #3ABAB3);">
-                            <i class="fas fa-shield-check fa-2x text-white"></i>
-                        </div>
-                        <h5 class="fw-bold mb-3">Escrow Payment</h5>
-                        <p class="text-muted">Sistem pembayaran aman dengan escrow. Dana hanya diteruskan setelah pekerjaan disetujui.</p>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h4 class="step-title">Mulai Kolaborasi</h4>
+                        <p class="step-desc">Komunikasikan kebutuhan, buat perjanjian, dan mulai bekerja sama dalam platform yang aman.</p>
                     </div>
                 </div>
                 
-                <div class="col-md-6 col-lg-3">
-                    <div class="feature-card bg-white shadow-sm p-4">
-                        <div class="feature-icon-wrapper" style="background: linear-gradient(135deg, var(--success-color), #38A169);">
-                            <i class="fas fa-chart-line fa-2x text-white"></i>
-                        </div>
-                        <h5 class="fw-bold mb-3">Progress Tracking</h5>
-                        <p class="text-muted">Pantau perkembangan project secara real-time dengan milestone tracking dan notifikasi otomatis.</p>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <h4 class="step-title">Hasil & Ulasan</h4>
+                        <p class="step-desc">Selesaikan proyek, berikan ulasan, dan bangun portofolio yang semakin kuat.</p>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="stats" class="py-5 bg-white">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <div class="counter" data-count="500">500+</div>
-                        <h6>UMKM Terdaftar</h6>
-                        <p class="text-muted mb-0">Dari berbagai sektor bisnis</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <div class="counter" data-count="800">800+</div>
-                        <h6>Creative Worker</h6>
-                        <p class="text-muted mb-0">Talent berpengalaman</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <div class="counter" data-count="700">700+</div>
-                        <h6>Project Selesai</h6>
-                        <p class="text-muted mb-0">Kolaborasi sukses</p>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <div class="counter" data-count="88">88%</div>
-                        <h6>Kepuasan Klien</h6>
-                        <p class="text-muted mb-0">Rating positif</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="how-it-works" class="py-5" style="background: linear-gradient(135deg, rgba(78, 205, 196, 0.1), rgba(62, 127, 213, 0.1));">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="mb-3">Cara Kerja yang Sederhana</h2>
-                <p class="lead text-muted">Hanya 3 langkah untuk memulai kolaborasi</p>
             </div>
             
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <div class="text-center px-4">
-                        <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
-                            <span class="h2 text-white mb-0">1</span>
-                        </div>
-                        <h5 class="fw-bold mb-3">Daftar & Buat Profil</h5>
-                        <p class="text-muted">Buat akun sebagai UMKM atau Creative Worker. Lengkapi profil untuk mendapatkan rekomendasi terbaik.</p>
-                    </div>
-                </div>
-                
-                <div class="col-md-4 mb-4">
-                    <div class="text-center px-4">
-                        <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
-                            <span class="h2 text-white mb-0">2</span>
-                        </div>
-                        <h5 class="fw-bold mb-3">Temukan & Hubungi</h5>
-                        <p class="text-muted">Cari partner yang sesuai, diskusikan project melalui chat, dan sepakati scope kerja.</p>
-                    </div>
-                </div>
-                
-                <div class="col-md-4 mb-4">
-                    <div class="text-center px-4">
-                        <div class="rounded-circle bg-accent d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px; background-color: var(--accent-color);">
-                            <span class="h2 text-white mb-0">3</span>
-                        </div>
-                        <h5 class="fw-bold mb-3">Kolaborasi & Bayar</h5>
-                        <p class="text-muted">Mulai bekerja sama, pantau progress, dan lakukan pembayaran aman setelah project selesai.</p>
+            <div class="row mt-5">
+                <div class="col-12 text-center">
+                    <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-4" data-aos="fade-up" data-aos-delay="500">
+                        <a href="register-choice.php" class="btn btn-primary btn-lg px-5">
+                            <i class="fas fa-rocket me-2"></i>Mulai Sekarang
+                        </a>
+                        <a href="login.php" class="btn btn-outline-primary btn-lg px-5">
+                            <i class="fas fa-sign-in-alt me-2"></i>Masuk Akun
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="cta-section py-5 bg-primary text-white">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h2 class="mb-3">Siap Transformasi Bisnis Anda?</h2>
-                    <p class="lead mb-0">Bergabunglah dengan komunitas UMKM dan creative worker yang sudah berkembang bersama kami.</p>
+    <!-- Login Required Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Akses Diperlukan</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="col-lg-4 text-lg-end">
-                    <?php if (!isset($_SESSION['user_id'])): ?>
-                        <a href="register-choice.php" class="btn btn-light btn-lg px-5">
-                            <i class="fas fa-rocket me-2"></i>Daftar Sekarang
-                        </a>
-                    <?php else: ?>
-                        <a href="dashboard.php" class="btn btn-light btn-lg px-5">
-                            <i class="fas fa-plus-circle me-2"></i>Buat Project Baru
-                        </a>
-                    <?php endif; ?>
+                <div class="modal-body">
+                    <div class="modal-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h4 class="mb-3">Anda perlu masuk terlebih dahulu</h4>
+                    <p class="text-muted mb-4">Untuk melihat detail profil dan memulai kolaborasi, silakan masuk atau daftar akun Konekin.</p>
+                    <div class="d-flex justify-content-center">
+                        <a href="login.php" class="btn btn-modal btn-modal-login">Masuk</a>
+                        <a href="register-choice.php" class="btn btn-modal btn-modal-signup">Daftar</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <footer class="footer-section text-white py-5" style="background: linear-gradient(to right, var(--neutral-dark), #1A202C);">
+    <footer class="footer" id="tentang">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h5 class="mb-3"><i class="fas fa-handshake me-2"></i>Konekin</h5>
-                    <p>Platform penghubung UMKM dengan creative worker untuk transformasi digital dan perluasan lapangan kerja di Indonesia.</p>
-                    <div class="d-flex gap-3 mt-4">
-                        <a href="#" class="text-white"><i class="fab fa-instagram fa-lg"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-facebook fa-lg"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-twitter fa-lg"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-linkedin fa-lg"></i></a>
+            <div class="row g-5">
+                <div class="col-lg-5">
+                    <a href="#" class="footer-brand">
+                        <i class="fas fa-handshake me-2"></i>Konekin
+                    </a>
+                    <p class="mb-4" style="line-height: 1.7;">Platform kolaborasi digital yang didedikasikan untuk memberdayakan UMKM Indonesia melalui sinergi dengan talenta kreatif nasional. Kami percaya pada kekuatan kolaborasi untuk pertumbuhan ekonomi.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-4 mb-4">
-                    <h6 class="mb-3">Perusahaan</h6>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#about" class="text-white-50 text-decoration-none">Tentang Kami</a></li>
-                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Karir</a></li>
-                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Blog</a></li>
-                        <li><a href="#" class="text-white-50 text-decoration-none">Press Kit</a></li>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <h5 class="footer-title">Platform</h5>
+                    <ul>
+                        <li><a href="index.php">Beranda</a></li>
+                        <li><a href="#how-it-works">Cara Kerja</a></li>
+                        <li><a href="#profiles">Profil</a></li>
+                        <li><a href="#tentang">Tentang Kami</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-2 col-md-4 mb-4">
-                    <h6 class="mb-3">Dukungan</h6>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Pusat Bantuan</a></li>
-                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Keamanan</a></li>
-                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">FAQ</a></li>
-                        <li><a href="#" class="text-white-50 text-decoration-none">Kontak</a></li>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <h5 class="footer-title">Dukungan</h5>
+                    <ul>
+                        <li><a href="#">Pusat Bantuan</a></li>
+                        <li><a href="#">Syarat & Ketentuan</a></li>
+                        <li><a href="#">Kebijakan Privasi</a></li>
+                        <li><a href="#">Hubungi Kami</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-4 col-md-4 mb-4">
-                    <h6 class="mb-3">Hubungi Kami</h6>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><i class="fas fa-envelope me-2"></i>hello@konekin.id</li>
-                        <li class="mb-2"><i class="fas fa-phone me-2"></i>(021) 1234-5678</li>
-                        <li><i class="fas fa-map-marker-alt me-2"></i>Jember, Jawa Timur</li>
+                <div class="col-lg-3 col-md-4">
+                    <h5 class="footer-title">Kontak</h5>
+                    <ul style="font-size: 0.95rem;">
+                        <li><i class="fas fa-map-marker-alt me-2 text-primary"></i> Jakarta, Indonesia</li>
+                        <li><i class="fas fa-envelope me-2 text-primary"></i> hello@konekin.id</li>
+                        <li><i class="fas fa-phone-alt me-2 text-primary"></i> +62 21 5555 0100</li>
                     </ul>
                 </div>
             </div>
-            <hr class="my-4 bg-white-20">
-            <div class="text-center pt-3">
-                <p class="mb-0">&copy; 2025 Konekin. All rights reserved.</p>
+            <div class="footer-bottom">
+                <p class="mb-0">&copy; 2025 Konekin. Hak Cipta Dilindungi. Dibuat untuk memajukan ekonomi kreatif.</p>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // Counter Animation
-        document.addEventListener('DOMContentLoaded', function() {
-            const counters = document.querySelectorAll('.counter');
-            counters.forEach(counter => {
-                const target = parseInt(counter.getAttribute('data-count'));
-                let current = 0;
-                const increment = target / 100;
-                
-                const updateCounter = () => {
-                    if (current < target) {
-                        current += increment;
-                        counter.textContent = Math.ceil(current) + (counter.textContent.includes('+') ? '+' : 
-                                               counter.textContent.includes('%') ? '%' : '');
-                        setTimeout(updateCounter, 20);
-                    }
-                };
-                
-                // Start counter when in viewport
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            updateCounter();
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                });
-                
-                observer.observe(counter);
-            });
+        // Initialize AOS Animation
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100,
+            easing: 'ease-out-cubic'
+        });
 
-            // Smooth scrolling
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    if (targetId === '#') return;
-                    
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        window.scrollTo({
-                            top: targetElement.offsetTop - 70,
-                            behavior: 'smooth'
-                        });
-                    }
-                });
+        // Navbar Background Change on Scroll
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 50) {
+                document.querySelector('.navbar').style.background = 'rgba(255, 255, 255, 0.98)';
+                document.querySelector('.navbar').style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)';
+            } else {
+                document.querySelector('.navbar').style.background = 'rgba(255, 255, 255, 0.95)';
+                document.querySelector('.navbar').style.boxShadow = '0 2px 15px rgba(0,0,0,0.05)';
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
             });
         });
     </script>
