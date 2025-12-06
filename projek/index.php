@@ -272,8 +272,7 @@
             
             .pos-deal { justify-content: center; margin-top: 40px; }
         }
-        /* --- UPDATED INTERACTIVE SECTION STYLE (END) --- */
-        
+       
         /* Enhanced Features */
         .feature-card {
             border: none;
@@ -509,7 +508,7 @@
                     <div class="character-avatar" style="background: linear-gradient(135deg, #4ECDC4, #556270);">
                         <i class="fas fa-laptop-code"></i>
                     </div>
-                    <div class="character-label">Freelancer</div>
+                    <div class="character-label">Creative Worker</div>
                 </div>
 
                 <div class="chat-bubble bubble-2">
