@@ -726,19 +726,22 @@ $recent_notifications = $notificationManager->getUserNotifications($_SESSION['us
                     </li>
                 </ul>
 
-                <div class="search-autocomplete-container">
-    <div class="search-input-wrapper">
-        <i class="fas fa-search search-icon"></i>
-        <input type="text" 
-               class="search-input" 
-               id="globalSearchInput" 
-               placeholder="<?php echo $searchPlaceholder; ?>"
-               autocomplete="off">
-        <button class="clear-search" id="clearSearchBtn">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="autocomplete-dropdown" id="autocompleteDropdown">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <?php
+                    // Menentukan placeholder berdasarkan tipe user
+                    $searchPlaceholder = "Cari...";
+                    
+                    if ($_SESSION['user_type'] === 'creative') {
+                        $searchPlaceholder = "Cari proyek...";
+                    } elseif ($_SESSION['user_type'] === 'umkm') {
+                        $searchPlaceholder = "Cari kreator atau freelancer...";
+                    } elseif ($_SESSION['user_type'] === 'admin') {
+                        $searchPlaceholder = "Cari pengguna atau proyek...";
+                    }
+                    ?>
+                    <input type="text" class="search-input" placeholder="<?php echo $searchPlaceholder; ?>">
+                </div>
 
                 <div class="user-section">
                     <div class="notification-bell dropdown">
@@ -937,286 +940,46 @@ $recent_notifications = $notificationManager->getUserNotifications($_SESSION['us
                 location.reload();
             }
         }
-        document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('globalSearchInput');
-    const clearBtn = document.getElementById('clearSearchBtn');
-    const dropdown = document.getElementById('autocompleteDropdown');
+        // Autocomplete Search
+const searchInput = document.querySelector('.search-input');
+if (searchInput) {
     let debounceTimer;
-    let currentResults = [];
     
-    // Fungsi untuk mendapatkan history pencarian dari localStorage
-    function getSearchHistory() {
-        const history = localStorage.getItem('konekin_search_history');
-        return history ? JSON.parse(history) : [];
-    }
-    
-    // Fungsi untuk menyimpan history pencarian
-    function saveToSearchHistory(query, url) {
-        let history = getSearchHistory();
-        
-        // Hapus jika sudah ada
-        history = history.filter(item => item.query !== query);
-        
-        // Tambahkan di awal
-        history.unshift({
-            query: query,
-            url: url,
-            timestamp: new Date().toISOString()
-        });
-        
-        // Simpan maksimal 10 item
-        history = history.slice(0, 10);
-        localStorage.setItem('konekin_search_history', JSON.stringify(history));
-        
-        // Simpan juga di session untuk server-side
-        fetch('save-search-history.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ query: query, url: url })
-        });
-    }
-    
-    // Fungsi untuk memuat suggestions
-    function loadSuggestions(query) {
-        if (query.length < 2) {
-            dropdown.style.display = 'none';
-            return;
-        }
-        
-        fetch(`search-handler.php?query=${encodeURIComponent(query)}`)
-            .then(response => response.json())
-            .then(data => {
-                currentResults = data.results || [];
-                renderDropdown(data.results, query);
-            })
-            .catch(error => {
-                console.error('Error fetching suggestions:', error);
-                dropdown.style.display = 'none';
-            });
-    }
-    
-    // Fungsi untuk merender dropdown
-    function renderDropdown(results, query) {
-        if (!results || results.length === 0) {
-            dropdown.innerHTML = `
-                <div class="autocomplete-empty">
-                    <i class="fas fa-search"></i>
-                    <div>Tidak ada hasil untuk "${query}"</div>
-                    <small>Coba kata kunci lain</small>
-                </div>
-            `;
-            dropdown.style.display = 'block';
-            return;
-        }
-        
-        let html = '';
-        let hasHistory = false;
-        
-        results.forEach((result, index) => {
-            const typeClass = result.type || 'feature';
-            const icon = result.icon || getDefaultIcon(typeClass);
-            
-            if (result.type === 'history') {
-                if (!hasHistory) {
-                    hasHistory = true;
-                    html += `
-                        <div class="search-history-header">
-                            <span>Pencarian Terakhir</span>
-                            <button class="clear-history" onclick="clearSearchHistory()">
-                                Hapus
-                            </button>
-                        </div>
-                    `;
-                }
-            }
-            
-            html += `
-                <div class="autocomplete-item" 
-                     data-index="${index}"
-                     data-url="${result.url}"
-                     data-type="${typeClass}">
-                    <div class="autocomplete-icon ${typeClass}">
-                        <i class="${icon}"></i>
-                    </div>
-                    <div class="autocomplete-content">
-                        <div class="autocomplete-title">
-                            ${highlightText(result.name || result.display_text, query)}
-                            <span class="autocomplete-type">
-                                ${getTypeLabel(typeClass)}
-                            </span>
-                        </div>
-                        <div class="autocomplete-desc">
-                            ${result.display_text || result.description || ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        dropdown.innerHTML = html;
-        dropdown.style.display = 'block';
-        
-        // Tambahkan event listeners untuk setiap item
-        document.querySelectorAll('.autocomplete-item').forEach(item => {
-            item.addEventListener('click', function() {
-                const url = this.getAttribute('data-url');
-                const type = this.getAttribute('data-type');
-                const index = this.getAttribute('data-index');
-                const result = currentResults[index];
-                
-                if (type !== 'history') {
-                    saveToSearchHistory(searchInput.value, url);
-                }
-                
-                if (url.startsWith('http')) {
-                    window.open(url, '_blank');
-                } else {
-                    window.location.href = url;
-                }
-            });
-        });
-    }
-    
-    // Fungsi untuk highlight text yang cocok
-    function highlightText(text, query) {
-        if (!query) return text;
-        const regex = new RegExp(`(${query})`, 'gi');
-        return text.replace(regex, '<mark>$1</mark>');
-    }
-    
-    // Helper functions
-    function getDefaultIcon(type) {
-        const icons = {
-            'feature': 'fas fa-cog',
-            'project': 'fas fa-project-diagram',
-            'creative': 'fas fa-user-tie',
-            'history': 'fas fa-history'
-        };
-        return icons[type] || 'fas fa-search';
-    }
-    
-    function getTypeLabel(type) {
-        const labels = {
-            'feature': 'Fitur',
-            'project': 'Proyek',
-            'creative': 'Kreator',
-            'history': 'Riwayat'
-        };
-        return labels[type] || 'Hasil';
-    }
-    
-    // Event Listeners
     searchInput.addEventListener('input', function(e) {
-        const query = e.target.value.trim();
-        clearBtn.style.display = query ? 'block' : 'none';
-        
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
-            loadSuggestions(query);
+            const query = this.value.trim();
+            if (query.length >= 2) {
+                fetchSearchSuggestions(query);
+            }
         }, 300);
     });
     
-    searchInput.addEventListener('focus', function() {
-        if (this.value.trim().length >= 2) {
-            loadSuggestions(this.value.trim());
-        } else {
-            // Tampilkan history saat fokus tanpa query
-            const history = getSearchHistory();
-            if (history.length > 0) {
-                const historyResults = history.map(item => ({
-                    type: 'history',
-                    name: item.query,
-                    display_text: `Pencarian: ${item.query}`,
-                    url: item.url,
-                    icon: 'fas fa-history',
-                    timestamp: item.timestamp
-                }));
-                renderDropdown(historyResults, '');
-            }
-        }
-    });
-    
-    searchInput.addEventListener('keydown', function(e) {
+    searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             const query = this.value.trim();
             if (query) {
-                // Redirect ke halaman pencarian berdasarkan tipe user
-                let searchUrl;
-                if (<?php echo $_SESSION['user_type'] === 'creative' ? 'true' : 'false'; ?>) {
-                    searchUrl = `find-projects.php?query=${encodeURIComponent(query)}`;
-                } else {
-                    searchUrl = `find-creatives.php?search=${encodeURIComponent(query)}`;
-                }
-                
-                saveToSearchHistory(query, searchUrl);
-                window.location.href = searchUrl;
+                window.location.href = `search.php?q=${encodeURIComponent(query)}`;
             }
         }
-        
-        // Navigasi dengan arrow keys
-        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-            e.preventDefault();
-            navigateDropdown(e.key === 'ArrowDown' ? 1 : -1);
-        }
     });
-    
-    clearBtn.addEventListener('click', function() {
-        searchInput.value = '';
-        searchInput.focus();
-        this.style.display = 'none';
-        dropdown.style.display = 'none';
-    });
-    
-    // Navigasi dropdown dengan keyboard
-    let selectedIndex = -1;
-    
-    function navigateDropdown(direction) {
-        const items = document.querySelectorAll('.autocomplete-item');
-        if (items.length === 0) return;
-        
-        // Hapus selection sebelumnya
-        if (selectedIndex >= 0) {
-            items[selectedIndex].style.backgroundColor = '';
-        }
-        
-        selectedIndex += direction;
-        
-        if (selectedIndex < 0) {
-            selectedIndex = items.length - 1;
-        } else if (selectedIndex >= items.length) {
-            selectedIndex = 0;
-        }
-        
-        // Tambahkan selection baru
-        items[selectedIndex].style.backgroundColor = '#e3f2fd';
-        items[selectedIndex].scrollIntoView({ block: 'nearest' });
-        
-        // Update input dengan text yang dipilih
-        const selectedText = currentResults[selectedIndex]?.name || '';
-        if (selectedText) {
-            searchInput.value = selectedText;
-        }
-    }
-    
-    // Tutup dropdown saat klik di luar
-    document.addEventListener('click', function(e) {
-        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.style.display = 'none';
-        }
-    });
-    
-    // Fungsi untuk menghapus history
-    window.clearSearchHistory = function() {
-        localStorage.removeItem('konekin_search_history');
-        if (searchInput.value.trim().length >= 2) {
-            loadSuggestions(searchInput.value.trim());
-        } else {
-            dropdown.style.display = 'none';
-        }
-    };
-});
+}
+
+function fetchSearchSuggestions(query) {
+    fetch(`api/search-suggestions.php?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            showSearchSuggestions(data, query);
+        })
+        .catch(error => {
+            console.error('Error fetching suggestions:', error);
+        });
+}
+
+function showSearchSuggestions(suggestions, query) {
+    // Implementasi dropdown suggestions di sini
+    // Anda bisa membuat dropdown dinamis
+}
     </script>
 </body>
 </html>
