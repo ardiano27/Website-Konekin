@@ -1,3 +1,141 @@
+<?php
+session_start();
+require_once 'config/Database.php';
+
+// Inisialisasi database
+try {
+    $database = new DatabaseConnection();
+    $conn = $database->getConnection();
+    
+    // Query untuk mendapatkan UMKM terbaik dengan data lengkap
+    $sql_umkm = "
+        SELECT 
+            up.business_name,
+            up.business_type,
+            up.business_description,
+            u.full_name as owner_name,
+            u.avatar_url,
+            u.background_url,
+            COUNT(DISTINCT p.id) as total_projects,
+            COUNT(DISTINCT c.id) as completed_contracts,
+            (SELECT COUNT(DISTINCT creative_user_id) 
+             FROM contracts 
+             WHERE umkm_user_id = up.user_id) as total_creatives,
+            up.user_id,
+            up.business_logo_url,
+            u.created_at as member_since
+        FROM umkm_profiles up
+        JOIN users u ON up.user_id = u.id
+        LEFT JOIN projects p ON p.umkm_user_id = up.user_id
+        LEFT JOIN contracts c ON c.umkm_user_id = up.user_id AND c.status = 'completed'
+        WHERE u.is_active = 1 AND u.user_type = 'umkm'
+        GROUP BY up.id, u.id
+        ORDER BY completed_contracts DESC, total_projects DESC
+        LIMIT 1
+    ";
+    
+    $stmt_umkm = $conn->prepare($sql_umkm);
+    $stmt_umkm->execute();
+    $umkm_data = $stmt_umkm->fetch(PDO::FETCH_ASSOC);
+    
+    // Query untuk mendapatkan Creative terbaik dengan data lengkap
+    $sql_creative = "
+        SELECT 
+            cp.*,
+            u.full_name,
+            u.avatar_url,
+            u.background_url,
+            cp.rating,
+            cp.completed_projects as total_projects,
+            cp.tagline,
+            cp.bio,
+            cp.location,
+            cp.experience_level,
+            (SELECT ROUND(AVG(agreed_budget), 2)
+             FROM contracts 
+             WHERE creative_user_id = cp.user_id AND status = 'completed') as avg_project_value,
+            cp.user_id,
+            u.created_at as member_since
+        FROM creative_profiles cp
+        JOIN users u ON cp.user_id = u.id
+        WHERE u.is_active = 1 AND u.user_type = 'creative'
+        ORDER BY cp.rating DESC, cp.completed_projects DESC
+        LIMIT 1
+    ";
+    
+    $stmt_creative = $conn->prepare($sql_creative);
+    $stmt_creative->execute();
+    $creative_data = $stmt_creative->fetch(PDO::FETCH_ASSOC);
+    
+} catch (PDOException $e) {
+    // Jika error, tetap tampilkan data placeholder
+    $umkm_data = null;
+    $creative_data = null;
+}
+
+// Format data
+$business_types = [
+    'food' => 'Makanan & Minuman',
+    'fashion' => 'Fashion',
+    'craft' => 'Kerajinan',
+    'service' => 'Jasa',
+    'retail' => 'Ritel',
+    'other' => 'Lainnya'
+];
+
+$experience_levels = [
+    'beginner' => 'Pemula',
+    'intermediate' => 'Menengah',
+    'expert' => 'Expert'
+];
+
+// Default values jika tidak ada data
+$default_umkm_data = [
+    'business_name' => 'UMKM Terbaik',
+    'business_type' => 'other',
+    'business_description' => 'Belum ada deskripsi bisnis tersedia.',
+    'owner_name' => 'Pemilik UMKM',
+    'avatar_url' => 'https://ui-avatars.com/api/?name=UMKM&background=3B82F6&color=ffffff&size=200',
+    'background_url' => '',
+    'total_projects' => 0,
+    'total_creatives' => 0,
+    'completed_contracts' => 0,
+    'user_id' => 0,
+    'business_logo_url' => '',
+    'member_since' => date('Y-m-d H:i:s')
+];
+
+$default_creative_data = [
+    'full_name' => 'Kreator Terbaik',
+    'tagline' => 'Creative Professional',
+    'avatar_url' => 'https://ui-avatars.com/api/?name=Creative&background=7C3AED&color=ffffff&size=200',
+    'background_url' => '',
+    'rating' => 0.0,
+    'total_projects' => 0,
+    'avg_project_value' => 0,
+    'bio' => 'Belum ada deskripsi profil tersedia.',
+    'location' => 'Indonesia',
+    'experience_level' => 'intermediate',
+    'user_id' => 0,
+    'member_since' => date('Y-m-d H:i:s')
+];
+
+// Gunakan data dari database atau default
+$umkm_data = $umkm_data ?: $default_umkm_data;
+$creative_data = $creative_data ?: $default_creative_data;
+
+$umkm_business_type = isset($business_types[$umkm_data['business_type']]) 
+    ? $business_types[$umkm_data['business_type']] 
+    : $umkm_data['business_type'];
+
+$creative_experience = isset($experience_levels[$creative_data['experience_level']]) 
+    ? $experience_levels[$creative_data['experience_level']] 
+    : $creative_data['experience_level'];
+
+// Format tanggal member since
+$umkm_member_since = date('M Y', strtotime($umkm_data['member_since']));
+$creative_member_since = date('M Y', strtotime($creative_data['member_since']));
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -226,10 +364,10 @@
             width: 100%;
         }
 
-        /* --- FEATURED PROFILES SECTION --- */
+        /* --- PROFILES SECTION STYLES --- */
         .profiles-section {
             padding: 100px 0;
-            background: var(--light-bg); /* Changed slightly to distinguish from stats */
+            background: var(--light-bg);
         }
         .section-title {
             text-align: center;
@@ -248,101 +386,114 @@
             font-size: 2.8rem;
             color: var(--dark-color);
         }
-        .profile-card {
+        
+        /* NEW Profile Card Styling (Screenshot Style) */
+        .profile-card-new {
             background: var(--card-bg);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            transition: all 0.4s ease;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
             border: none;
             height: 100%;
-            margin-bottom: 30px;
-            position: relative;
+            margin-bottom: 25px;
             cursor: pointer;
+            border-top: 4px solid var(--primary-color);
         }
-        .profile-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        .profile-card-new:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
         }
-        .profile-card-header {
-            height: 160px;
-            position: relative;
-            overflow: hidden;
+        .profile-card-new.creative {
+            border-top-color: var(--creative-color);
         }
-        .umkm-profile .profile-card-header {
-            background: linear-gradient(135deg, var(--umkm-color), #3b82f6);
+        .profile-card-new.umkm {
+            border-top-color: var(--umkm-color);
         }
-        .creative-profile .profile-card-header {
-            background: linear-gradient(135deg, var(--creative-color), #8b5cf6);
-        }
-        .profile-card-img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 5px solid white;
-            position: absolute;
-            bottom: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            object-fit: cover;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-        .profile-card-body {
-            padding: 60px 25px 30px;
-            text-align: center;
-        }
-        .profile-card-name {
+        
+        .profile-badge-new {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
             font-weight: 700;
-            font-size: 1.3rem;
-            margin-bottom: 5px;
-            color: var(--dark-color);
-        }
-        .profile-card-title {
-            color: var(--secondary-color);
-            font-size: 0.9rem;
+            letter-spacing: 0.5px;
             margin-bottom: 15px;
         }
-        .profile-card-desc {
+        .profile-card-new.creative .profile-badge-new {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--creative-color);
+        }
+        .profile-card-new.umkm .profile-badge-new {
+            background: rgba(30, 64, 175, 0.1);
+            color: var(--umkm-color);
+        }
+        
+        .profile-name-new {
+            font-weight: 700;
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .profile-name-new i {
+            font-size: 1.2rem;
+        }
+        .profile-card-new.creative .profile-name-new i {
+            color: var(--creative-color);
+        }
+        .profile-card-new.umkm .profile-name-new i {
+            color: var(--umkm-color);
+        }
+        
+        .profile-title-new {
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .profile-desc-new {
             color: var(--secondary-color);
             font-size: 0.9rem;
             line-height: 1.6;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            min-height: 60px;
         }
-        .profile-card-stats {
+        
+        .profile-stats-new {
             display: flex;
-            justify-content: space-around;
+            gap: 15px;
             border-top: 1px solid #e2e8f0;
-            padding-top: 15px;
+            padding-top: 20px;
             margin-top: 15px;
         }
-        .stat-item {
+        .stat-item-new {
+            flex: 1;
             text-align: center;
+            padding: 10px 5px;
         }
-        .stat-value {
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--primary-color);
+        .stat-value-new {
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: var(--dark-color);
+            line-height: 1.2;
+            margin-bottom: 5px;
         }
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--secondary-color);
-            margin-top: 5px;
+        .profile-card-new.creative .stat-value-new {
+            color: var(--creative-color);
         }
-        .profile-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        .umkm-profile .profile-badge {
+        .profile-card-new.umkm .stat-value-new {
             color: var(--umkm-color);
         }
-        .creative-profile .profile-badge {
-            color: var(--creative-color);
+        .stat-label-new {
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         /* --- HOW IT WORKS SECTION --- */
@@ -433,6 +584,25 @@
             color: white;
         }
 
+        /* Profile Detail Modal Styles */
+        .bg-umkm {
+            background: linear-gradient(135deg, var(--umkm-color), #3b82f6) !important;
+        }
+        .bg-creative {
+            background: linear-gradient(135deg, var(--creative-color), #8b5cf6) !important;
+        }
+        
+        #profileModal .modal-content {
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        #profileModal .modal-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+        }
+        #profileModal .modal-footer {
+            background: #f8fafc;
+        }
+
         /* --- FOOTER --- */
         .footer {
             background: #1e293b;
@@ -508,6 +678,16 @@
             }
             .stats-card {
                 margin-bottom: 20px;
+            }
+            .profile-card-new {
+                margin-bottom: 20px;
+            }
+            .profile-stats-new {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .stat-value-new {
+                font-size: 1.6rem;
             }
         }
     </style>
@@ -642,60 +822,200 @@
                 <p class="text-muted" style="font-size: 1.1rem;">Bergabunglah dengan komunitas profesional kami untuk kolaborasi yang lebih baik.</p>
             </div>
             
+            <!-- Creative Profiles -->
             <div class="row g-4">
-                <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
-                    <div class="profile-card umkm-profile" data-bs-toggle="modal" data-bs-target="#loginModal">
-                        <div class="profile-card-header">
-                            <span class="profile-badge">UMKM</span>
-                        </div>
-                        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                             alt="UMKM Profile" class="profile-card-img">
-                        <div class="profile-card-body">
-                            <h4 class="profile-card-name">Berkah Jaya Batik</h4>
-                            <p class="profile-card-title">Bisnis Fashion & Kerajinan</p>
-                            <p class="profile-card-desc">Produsen batik tradisional dengan 10 tahun pengalaman, mencari kreator untuk pengembangan branding digital.</p>
-                            <div class="profile-card-stats">
-                                <div class="stat-item">
-                                    <div class="stat-value">24</div>
-                                    <div class="stat-label">Proyek</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value">4.8</div>
-                                    <div class="stat-label">Rating</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value">15</div>
-                                    <div class="stat-label">Kreator</div>
-                                </div>
+                <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="profile-card-new creative"
+                         data-bs-toggle="modal" 
+                         data-bs-target="#profileModal"
+                         onclick="setProfileModalData('creative', 
+                             '<?php echo htmlspecialchars($creative_data['full_name'], ENT_QUOTES); ?>',
+                             '<?php echo htmlspecialchars($creative_data['tagline'] ?? 'Creative Professional', ENT_QUOTES); ?>',
+                             '<?php echo htmlspecialchars($creative_data['full_name'], ENT_QUOTES); ?>',
+                             '<?php echo htmlspecialchars($creative_data['bio'] ?? $creative_data['tagline'] ?? 'Spesialis dalam desain digital untuk UMKM', ENT_QUOTES); ?>',
+                             '<?php echo htmlspecialchars($creative_data['avatar_url']); ?>',
+                             <?php echo $creative_data['total_projects']; ?>,
+                             <?php echo number_format($creative_data['rating'], 1); ?>,
+                             <?php echo $creative_data['avg_project_value'] ?? 2500000; ?>,
+                             '<?php echo $creative_data['user_id']; ?>',
+                             '<?php echo $creative_member_since; ?>')">
+                        
+                        <span class="profile-badge-new">CREATOR</span>
+                        
+                        <h3 class="profile-name-new">
+                            <i class="fas fa-user-circle"></i>
+                            <?php echo htmlspecialchars($creative_data['full_name']); ?>
+                        </h3>
+                        
+                        <p class="profile-title-new">
+                            <?php echo htmlspecialchars($creative_data['tagline'] ?? 'Creative Professional'); ?>
+                        </p>
+                        
+                        <p class="profile-desc-new">
+                            <?php 
+                            $bio = $creative_data['bio'] ?? $creative_data['tagline'] ?? 'Spesialis dalam desain digital untuk UMKM';
+                            echo strlen($bio) > 100 ? htmlspecialchars(substr($bio, 0, 100)) . '...' : htmlspecialchars($bio);
+                            ?>
+                        </p>
+                        
+                        <div class="profile-stats-new">
+                            <div class="stat-item-new">
+                                <div class="stat-value-new"><?php echo $creative_data['total_projects']; ?></div>
+                                <div class="stat-label-new">Selesai</div>
+                            </div>
+                            <div class="stat-item-new">
+                                <div class="stat-value-new"><?php echo number_format($creative_data['rating'], 1); ?></div>
+                                <div class="stat-label-new">Rating</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
-                    <div class="profile-card creative-profile" data-bs-toggle="modal" data-bs-target="#loginModal">
-                        <div class="profile-card-header">
-                            <span class="profile-badge">Kreator</span>
+                <!-- UMKM Profiles -->
+                <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="profile-card-new umkm"
+                         data-bs-toggle="modal" 
+                         data-bs-target="#profileModal"
+                         onclick="setProfileModalData('umkm', 
+                             '<?php echo htmlspecialchars($umkm_data['business_name'], ENT_QUOTES); ?>',
+                             '<?php echo htmlspecialchars($umkm_business_type, ENT_QUOTES); ?>',
+                             '<?php echo htmlspecialchars($umkm_data['owner_name'], ENT_QUOTES); ?>',
+                             '<?php echo htmlspecialchars($umkm_data['business_description'], ENT_QUOTES); ?>',
+                             '<?php echo !empty($umkm_data['avatar_url']) ? htmlspecialchars($umkm_data['avatar_url']) : (!empty($umkm_data['business_logo_url']) ? htmlspecialchars($umkm_data['business_logo_url']) : 'https://ui-avatars.com/api/?name=' . urlencode($umkm_data['business_name']) . '&background=3B82F6&color=ffffff&size=200'); ?>',
+                             <?php echo $umkm_data['total_projects']; ?>,
+                             <?php echo $umkm_data['total_creatives']; ?>,
+                             <?php echo $umkm_data['completed_contracts']; ?>,
+                             '<?php echo $umkm_data['user_id']; ?>',
+                             '<?php echo $umkm_member_since; ?>')">
+                        
+                        <span class="profile-badge-new">UMKM</span>
+                        
+                        <h3 class="profile-name-new">
+                            <i class="fas fa-store"></i>
+                            <?php echo htmlspecialchars($umkm_data['business_name']); ?>
+                        </h3>
+                        
+                        <p class="profile-title-new">
+                            <?php echo htmlspecialchars($umkm_business_type); ?>
+                        </p>
+                        
+                        <p class="profile-desc-new">
+                            <?php 
+                            $desc = $umkm_data['business_description'];
+                            echo strlen($desc) > 100 ? htmlspecialchars(substr($desc, 0, 100)) . '...' : htmlspecialchars($desc);
+                            ?>
+                        </p>
+                        
+                        <div class="profile-stats-new">
+                            <div class="stat-item-new">
+                                <div class="stat-value-new"><?php echo $umkm_data['total_projects']; ?></div>
+                                <div class="stat-label-new">Proyek</div>
+                            </div>
+                            <div class="stat-item-new">
+                                <div class="stat-value-new"><?php echo $umkm_data['completed_contracts']; ?></div>
+                                <div class="stat-label-new">Kontrak</div>
+                            </div>
                         </div>
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                             alt="Creative Profile" class="profile-card-img">
-                        <div class="profile-card-body">
-                            <h4 class="profile-card-name">Ahmad Digital</h4>
-                            <p class="profile-card-title">UI/UX Designer & Developer</p>
-                            <p class="profile-card-desc">Spesialis dalam desain digital untuk UMKM, telah menyelesaikan 50+ proyek dengan kepuasan klien 98%.</p>
-                            <div class="profile-card-stats">
-                                <div class="stat-item">
-                                    <div class="stat-value">57</div>
-                                    <div class="stat-label">Proyek</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value">4.9</div>
-                                    <div class="stat-label">Rating</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value">Rp 2,5jt</div>
-                                    <div class="stat-label">/proyek</div>
-                                </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Profiles Row (like in screenshot) -->
+            <div class="row g-4 mt-2">
+                <!-- Second Creative Profile -->
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="profile-card-new creative"
+                         onclick="window.location.href='view-creative-profile.php?id=6'">
+                        
+                        <span class="profile-badge-new">CREATOR</span>
+                        
+                        <h3 class="profile-name-new">
+                            <i class="fas fa-user-circle"></i>
+                            Revi Ardiano Ramadhan
+                        </h3>
+                        
+                        <p class="profile-title-new">
+                            Website Developer
+                        </p>
+                        
+                        <p class="profile-desc-new">
+                            Website Developer profesional dengan pengalaman dalam mengembangkan solusi digital untuk UMKM.
+                        </p>
+                        
+                        <div class="profile-stats-new">
+                            <div class="stat-item-new">
+                                <div class="stat-value-new">0</div>
+                                <div class="stat-label-new">Selesai</div>
+                            </div>
+                            <div class="stat-item-new">
+                                <div class="stat-value-new">0.0</div>
+                                <div class="stat-label-new">Rating</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second UMKM Profile -->
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                    <div class="profile-card-new umkm"
+                         onclick="window.location.href='umkm-profile.php'">
+                        
+                        <span class="profile-badge-new">UMKM</span>
+                        
+                        <h3 class="profile-name-new">
+                            <i class="fas fa-store"></i>
+                            Santet service
+                        </h3>
+                        
+                        <p class="profile-title-new">
+                            service
+                        </p>
+                        
+                        <p class="profile-desc-new">
+                            Menyediakan berbagai layanan jasa untuk kebutuhan bisnis Anda.
+                        </p>
+                        
+                        <div class="profile-stats-new">
+                            <div class="stat-item-new">
+                                <div class="stat-value-new">1</div>
+                                <div class="stat-label-new">Proyek</div>
+                            </div>
+                            <div class="stat-item-new">
+                                <div class="stat-value-new">0</div>
+                                <div class="stat-label-new">Kontrak</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Third Creative Profile -->
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+                    <div class="profile-card-new creative"
+                         onclick="window.location.href='view-creative-profile.php?id=2'">
+                        
+                        <span class="profile-badge-new">CREATOR</span>
+                        
+                        <h3 class="profile-name-new">
+                            <i class="fas fa-user-circle"></i>
+                            CINO
+                        </h3>
+                        
+                        <p class="profile-title-new">
+                            Editor Video
+                        </p>
+                        
+                        <p class="profile-desc-new">
+                            Spesialis dalam editing video untuk konten promosi dan media sosial UMKM.
+                        </p>
+                        
+                        <div class="profile-stats-new">
+                            <div class="stat-item-new">
+                                <div class="stat-value-new">0</div>
+                                <div class="stat-label-new">Selesai</div>
+                            </div>
+                            <div class="stat-item-new">
+                                <div class="stat-value-new">0.0</div>
+                                <div class="stat-label-new">Rating</div>
                             </div>
                         </div>
                     </div>
@@ -769,6 +1089,72 @@
             </div>
         </div>
     </section>
+
+    <!-- Profile Detail Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <div class="d-flex align-items-center">
+                        <span id="profileTypeBadge" class="badge me-2"></span>
+                        <h5 class="modal-title fw-bold" id="profileModalLabel">Profil Detail</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <img id="profileModalAvatar" src="" alt="Avatar" 
+                                 class="img-fluid rounded-circle border border-4 border-white shadow mb-3"
+                                 style="width: 150px; height: 150px; object-fit: cover;">
+                            <div id="profileModalStats" class="row text-center"></div>
+                        </div>
+                        <div class="col-md-8">
+                            <h3 id="profileModalName" class="fw-bold mb-1"></h3>
+                            <p id="profileModalTitle" class="text-muted mb-3"></p>
+                            <p id="profileModalDesc" class="mb-4"></p>
+                            
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
+                                            <i class="fas fa-user text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block">Nama Pemilik</small>
+                                            <span id="profileModalOwner" class="fw-bold"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-success bg-opacity-10 p-2 me-3">
+                                            <i class="fas fa-star text-success"></i>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block">Bergabung Sejak</small>
+                                            <span id="profileModalMemberSince" class="fw-bold"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 pt-3 border-top">
+                                <h6 class="fw-bold mb-3">Statistik Kinerja</h6>
+                                <div id="profileModalPerformance" class="row"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-primary" onclick="redirectToProfile()">
+                        <i class="fas fa-external-link-alt me-2"></i>Lihat Profil Lengkap
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -890,7 +1276,7 @@
                         {
                             label: 'Pertumbuhan Omzet (%)',
                             data: [10, 25, 40, 55, 78, 92],
-                            borderColor: '#1e40af', // var(--umkm-color)
+                            borderColor: '#1e40af',
                             backgroundColor: 'rgba(30, 64, 175, 0.1)',
                             borderWidth: 3,
                             fill: true,
@@ -900,7 +1286,7 @@
                         {
                             label: 'Kuantitas Pasar (Jangkauan)',
                             data: [50, 80, 150, 200, 350, 500],
-                            borderColor: '#60a5fa', // var(--primary-light)
+                            borderColor: '#60a5fa',
                             backgroundColor: 'transparent',
                             borderWidth: 2,
                             borderDash: [5, 5],
@@ -937,11 +1323,6 @@
                 }
             });
 
-            // DATA KREATOR (Diambil dari Agregasi CSV freelancer_earnings_bd.csv)
-            // Agregasi Manual dari file CSV:
-            // Top Categories: Web Dev, Graphic Design, App Dev, Content Writing, Digital Marketing, SEO, Customer Support
-            // Success Rate rata-rata: Beginner ~85%, Intermediate ~92%, Expert ~97%
-            
             // 2. CREATIVE TREND CHART (Doughnut)
             const ctxCreativeTrend = document.getElementById('creativeTrendChart').getContext('2d');
             new Chart(ctxCreativeTrend, {
@@ -949,7 +1330,7 @@
                 data: {
                     labels: ['Web Dev', 'App Dev', 'Design', 'Marketing', 'Writing', 'SEO', 'Support'],
                     datasets: [{
-                        data: [150, 140, 130, 120, 110, 100, 90], // Estimasi proporsi dari CSV
+                        data: [150, 140, 130, 120, 110, 100, 90],
                         backgroundColor: [
                             '#2563eb', '#7c3aed', '#db2777', '#ea580c', '#10b981', '#f59e0b', '#64748b'
                         ],
@@ -975,7 +1356,7 @@
                     labels: ['Beginner', 'Intermediate', 'Expert'],
                     datasets: [{
                         label: 'Rata-rata Success Rate (%)',
-                        data: [85.4, 92.1, 97.5], // Data derived from Job_Success_Rate column averages
+                        data: [85.4, 92.1, 97.5],
                         backgroundColor: [
                             'rgba(37, 99, 235, 0.7)',
                             'rgba(124, 58, 237, 0.7)',
@@ -989,7 +1370,7 @@
                     }]
                 },
                 options: {
-                    indexAxis: 'y', // Horizontal Bar
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
@@ -1001,6 +1382,185 @@
                 }
             });
         });
+
+        // --- PROFILE MODAL MANAGEMENT ---
+        let currentProfileType = '';
+        let currentProfileName = '';
+        let currentProfileId = null;
+
+        // Fungsi untuk mengisi data modal
+        function setProfileModalData(type, name, title, owner, description, avatar, stat1, stat2, stat3, profileId, memberSince) {
+            currentProfileType = type;
+            currentProfileName = name;
+            currentProfileId = profileId;
+            
+            // Set badge type
+            const badge = document.getElementById('profileTypeBadge');
+            if (type === 'umkm') {
+                badge.className = 'badge bg-umkm me-2';
+                badge.textContent = 'UMKM';
+            } else {
+                badge.className = 'badge bg-creative me-2';
+                badge.textContent = 'Kreator';
+            }
+            
+            // Set data dasar
+            document.getElementById('profileModalName').textContent = name;
+            document.getElementById('profileModalTitle').textContent = title;
+            document.getElementById('profileModalOwner').textContent = owner;
+            document.getElementById('profileModalDesc').textContent = description;
+            document.getElementById('profileModalAvatar').src = avatar;
+            document.getElementById('profileModalMemberSince').textContent = memberSince;
+            
+            // Set stats berdasarkan type
+            const statsContainer = document.getElementById('profileModalStats');
+            const performanceContainer = document.getElementById('profileModalPerformance');
+            
+            if (type === 'umkm') {
+                statsContainer.innerHTML = `
+                    <div class="col-4">
+                        <h4 class="fw-bold text-primary">${stat1}</h4>
+                        <small class="text-muted">Proyek</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="fw-bold text-success">${stat2}</h4>
+                        <small class="text-muted">Kreator</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="fw-bold text-warning">${stat3}</h4>
+                        <small class="text-muted">Selesai</small>
+                    </div>
+                `;
+                
+                performanceContainer.innerHTML = `
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 bg-light h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                                        <i class="fas fa-project-diagram text-primary fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="fw-bold mb-0">${stat1}</h4>
+                                        <small class="text-muted">Total Proyek</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 bg-light h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                                        <i class="fas fa-handshake text-success fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="fw-bold mb-0">${stat2}</h4>
+                                        <small class="text-muted">Kreator Bekerja</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('profileModalRating').innerHTML = 
+                    `<span class="text-warning"><i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i> 4.0</span>`;
+                    
+            } else {
+                statsContainer.innerHTML = `
+                    <div class="col-4">
+                        <h4 class="fw-bold text-primary">${stat1}</h4>
+                        <small class="text-muted">Proyek</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="fw-bold text-success">${stat2}</h4>
+                        <small class="text-muted">Rating</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="fw-bold text-warning">Rp ${stat3.toLocaleString('id-ID')}</h4>
+                        <small class="text-muted">/proyek</small>
+                    </div>
+                `;
+                
+                performanceContainer.innerHTML = `
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 bg-light h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                                        <i class="fas fa-check-circle text-primary fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="fw-bold mb-0">${stat1}</h4>
+                                        <small class="text-muted">Proyek Selesai</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 bg-light h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                                        <i class="fas fa-star text-success fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="fw-bold mb-0">${stat2}/5.0</h4>
+                                        <small class="text-muted">Rating Klien</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('profileModalRating').innerHTML = 
+                    `<span class="text-warning">
+                        ${generateStars(stat2)}
+                    </span> ${stat2}/5.0`;
+            }
+        }
+
+        // Fungsi untuk generate bintang rating
+        function generateStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<i class="fas fa-star"></i>';
+            }
+            
+            if (hasHalfStar) {
+                stars += '<i class="fas fa-star-half-alt"></i>';
+            }
+            
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<i class="far fa-star"></i>';
+            }
+            
+            return stars;
+        }
+
+        // Fungsi untuk redirect ke halaman profil lengkap
+        function redirectToProfile() {
+            if (currentProfileType === 'umkm') {
+                // Redirect ke halaman profil UMKM
+                window.location.href = 'umkm-profile.php';
+            } else {
+                // Redirect ke halaman profil kreator
+                if (currentProfileId && currentProfileId != 0) {
+                    window.location.href = `view-creative-profile.php?id=${currentProfileId}`;
+                } else {
+                    // Fallback ke halaman kreator
+                    window.location.href = 'creative-profile.php';
+                }
+            }
+        }
     </script>
 </body>
 </html>
